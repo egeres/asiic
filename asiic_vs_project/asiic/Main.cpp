@@ -6,9 +6,9 @@
 
 
 /*  TO DO
+	add ctrl+z
 	bucket selection
 	square selection
-	free selection
 	toggle selection
 	button system
 	right click pie menu
@@ -19,10 +19,11 @@
 */
 
 
-/* FIXED
+/* IMPLENTED / FIXED
 	correct mouse in view
 	better movement
 	save to .txt
+	free toggle selection
 */
 
 void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
@@ -161,6 +162,9 @@ int main()
 	int initial_size_x = 1500;
 	int initial_size_y = 900;
 
+	int  selecion_mode   = 0;
+	bool selection_value = true;
+
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 
 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor");
@@ -186,7 +190,7 @@ int main()
 	bool out_of_canvas = true;
 
 	bool mouse_button_down;
-	bool prev_mouse_button_down;
+	bool prev_mouse_button_down = false;
 	bool left_mouse_button_just_down;
 	bool left_mouse_button_just_up;
 
@@ -253,19 +257,24 @@ int main()
         //}
 
 		//update variables
+
 		//mouse_position       = sf::Mouse::getPosition(window);
-
 		sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
 		//mouse_position.x = event ;
 		//mouse_position.y = ;
-
 		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, 20*cell_size, 20*cell_size);
 		displacement_v.x     = displacement_x;
 		displacement_v.y     = displacement_y;
 		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size);
 
 		mouse_button_down    = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+
+		left_mouse_button_just_down = false;
+		if (mouse_button_down && !prev_mouse_button_down) { left_mouse_button_just_down = true; std::cout << "left m";}
+
+		left_mouse_button_just_up = false;
+		if (!mouse_button_down && prev_mouse_button_down) { left_mouse_button_just_up = true; std::cout << "up";}
+
 
 		//loop itself
 		sf::Event event;
@@ -287,6 +296,7 @@ int main()
 		if (mouse_button_down) // && !prev_mouse_button_down)
 		{
 
+			//click inside of a button
 			if (click_inside_index((sf::Vector2i)mouse_position, list_of_buttons) != -1) 
 			{
 				cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
@@ -296,16 +306,27 @@ int main()
 					new_canvas.save_to("fileee.txt");
 				}
 			}
-
-			if (out_of_canvas)
+			//click inside of the canvas
+			else if (!out_of_canvas)
 			{
 
-			}
+				//cout << std::to_string(cell_location_vector.x) << "  "<< std::to_string(cell_location_vector.y) << "  :";
 
-			else 
-			{
-				new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y] = true;
-				cout << std::to_string(cell_location_vector.x) << "  "<< std::to_string(cell_location_vector.y) << "  :";
+				//pencil toggle selection
+				if (selecion_mode == 0)
+				{
+					if (left_mouse_button_just_down)
+					{ 
+						selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
+					}
+					new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y] = selection_value;
+				}
+
+				//square toggle selection mode
+				if (selecion_mode == 1)
+				{
+
+				}
 			}
 			
 		}
