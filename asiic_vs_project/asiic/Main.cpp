@@ -15,6 +15,7 @@
 	define button events properly
 	invert colors ?
 	icon to the project
+	resize canvas
 */
 
 
@@ -218,12 +219,19 @@ int main()
 	text.setCharacterSize(30);
 	text.setColor(sf::Color::White);
 
+	int canvas_button_pos_x = 0;
+	int canvas_button_pos_y = 0;
+	
+	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
+
 	vector<button*> list_of_buttons;
 
 	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt") );
 	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
 	list_of_buttons.push_back( new button(10,220,290,50,"square selection") );
+	list_of_buttons.push_back( &canvas_button );
 	//list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
+
 
 
 	//button new_leaf = button(10,10,150,50,"tananaa");
@@ -283,6 +291,11 @@ int main()
 		left_mouse_button_just_up = false;
 		if (!mouse_button_down && prev_mouse_button_down) { left_mouse_button_just_up = true; std::cout << "up";}
 
+		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 10;
+		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 10;
+
+		canvas_button.x = canvas_button_pos_x;
+		canvas_button.y = canvas_button_pos_y;
 
 		//loop itself
 		sf::Event event;
