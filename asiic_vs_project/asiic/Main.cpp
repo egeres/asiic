@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "canvas.h"
+#include "button.h"
 #include <iostream>	
 #include <string> 
 
@@ -67,12 +68,41 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 	for (int i = 0; i < input_canvas.size_x; i++) {
 		for (int j = 0; j < input_canvas.size_y; j++) {
 
-			text_obj.setPosition(disp_x + i * spacing, disp_y + j * spacing);
+			text_obj.setPosition(disp_x + i * spacing + 5, disp_y + j * spacing);
 			text_obj.setString(input_canvas.cell_letters[i][j]);
 			input_window.draw(text_obj);
 
 		}
 	}
+}
+
+void draw_buttons(sf::RenderWindow& input_window, canvas input_canvas, std::vector<button*> in_list_of_buttons, sf::Font font)
+{
+
+	//sf::RectangleShape rectangle(sf::Vector2f(1, 1));
+	//rectangle.setFillColor(      sf::Color(80, 80, 80)         );
+
+	sf::Text text;
+	text.setFont(font);
+	text.setCharacterSize(30);
+	text.setColor(sf::Color::White);
+	
+	for (int i = 0; i < in_list_of_buttons.size(); i++)
+	{
+		sf::RectangleShape rectangle(sf::Vector2f(in_list_of_buttons[i]->width, in_list_of_buttons[i]->height));
+		rectangle.setFillColor(      sf::Color(80, 80, 80)         );
+		rectangle.setPosition(in_list_of_buttons[i]->x, in_list_of_buttons[i]->y);
+		input_window.draw(rectangle);
+
+		text.setString(in_list_of_buttons[i]->text);
+		text.setPosition(  in_list_of_buttons[i]->x, in_list_of_buttons[i]->y);
+		input_window.draw(text);
+
+		//view1.draw(rectangle);
+
+		//std::cout << in_list_of_buttons[i]->x << in_list_of_buttons[i]->y << in_list_of_buttons[i]->width << in_list_of_buttons[i]->height << "\n";
+	}
+
 }
 
 bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height) 
@@ -119,10 +149,13 @@ int main()
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 
 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor");
+	window.setVerticalSyncEnabled(false);
+
+	//window.UseVerticalSynch(false);
 
 	window.setView(view1);
 
-	int displacement_x = 50;
+	int displacement_x = 350;
 	int displacement_y = 50;
 	int cell_size      = 40;
 
@@ -158,9 +191,49 @@ int main()
 	text.setCharacterSize(30);
 	text.setColor(sf::Color::White);
 
+	vector<button*> list_of_buttons;
 
+	list_of_buttons.push_back( new button(10,10,150,50,"superr") );
+	list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
+
+
+	button new_leaf = button(10,10,150,50,"tananaa");
+
+	/*
+	std::cout << list_of_buttons[0]->x;
+	std::cout << list_of_buttons[0]->y;
+	std::cout << list_of_buttons[0]->width;
+	*/
+
+	std::cout << new_leaf.x;
+	std::cout << new_leaf.y;
+	std::cout << new_leaf.width;
+	std::cout << new_leaf.height;
+	std::cout << new_leaf.text;
+	
+	//const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
+
+	//sf::Clock clock;
+    //sf::Time timeSinceLastUpdate = sf::Time::Zero;
+    sf::Clock clock;
 	while (window.isOpen())
 	{
+
+		// Inside the main loop
+		clock.restart();
+		
+		// Do the drawing etc.
+		
+        //sf::Time elapsedTime = clock.restart();
+        //timeSinceLastUpdate += elapsedTime;
+        //while (timeSinceLastUpdate > TimePerFrame)
+        //{
+        //    timeSinceLastUpdate -= TimePerFrame;
+		//
+        //    //processEvents();
+        //    update(TimePerFrame);
+		//
+        //}
 
 		//update variables
 		//mouse_position       = sf::Mouse::getPosition(window);
@@ -243,6 +316,7 @@ int main()
 		draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size);
 		draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size);
 		draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size, text);
+		draw_buttons(   window, new_canvas, list_of_buttons, font);
 
 		window.setView(view1);
 		window.display();
@@ -250,6 +324,13 @@ int main()
 		//prev variables
 		prev_mouse_position    = mouse_position;
 		prev_mouse_button_down = mouse_button_down;
+
+		sf::Time elapsed = clock.getElapsedTime();
+		float sleepTime = 1.f / 60.f - elapsed.asSeconds();
+		if(sleepTime > 0.f)
+		{
+		    sf::sleep(sf::seconds(sleepTime));
+		}
 	}
 
 	return 0;

@@ -66,6 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="canvas.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
@@ -75,6 +76,7 @@
     <None Include="ttf1.bin" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="button.h" />
     <ClInclude Include="canvas.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
