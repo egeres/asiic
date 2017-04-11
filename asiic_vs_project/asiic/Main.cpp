@@ -14,6 +14,7 @@
 	"select by color"
 	define button events properly
 	invert colors ?
+	icon to the project
 */
 
 
@@ -23,12 +24,13 @@
 	save to .txt
 	pencil toggle selection
 	square selection
+	text size corrected
 */
 
-void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
+void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y)
 {
 
-	sf::RectangleShape rectangle(sf::Vector2f(spacing, spacing));
+	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(5, 5, 5));
 	rectangle.setOutlineThickness(1);
 	rectangle.setOutlineColor(sf::Color(10, 10, 10));
@@ -36,19 +38,19 @@ void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, 
 	for (int i = 0; i < input_canvas.size_x; i++) {
 		for (int j = 0; j < input_canvas.size_y; j++) {
 
-			rectangle.setPosition(disp_x + i * spacing, disp_y + j * spacing);
+			rectangle.setPosition(disp_x + i * spacing_x, disp_y + j * spacing_y);
 			input_window.draw(rectangle);
 
 		}
 	}
 }
 
-void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
+void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y)
 {
 
 	input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
 
-	sf::RectangleShape rectangle(sf::Vector2f(spacing, spacing));
+	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(20, 20, 20));
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
@@ -57,7 +59,7 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 		for (int j = 0; j < input_canvas.size_y; j++) {
 
 			if (input_canvas.activ_cells[i][j]) {
-				rectangle.setPosition(disp_x + i * spacing, disp_y + j * spacing);
+				rectangle.setPosition(disp_x + i * spacing_x, disp_y + j * spacing_y);
 				input_window.draw(rectangle);
 			}
 
@@ -65,10 +67,10 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 	}
 }
 
-void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing, sf::Text& text_obj)
+void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y, sf::Text& text_obj)
 {
 
-	sf::RectangleShape rectangle(sf::Vector2f(spacing, spacing));
+	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(20, 20, 20));
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
@@ -76,7 +78,7 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 	for (int i = 0; i < input_canvas.size_x; i++) {
 		for (int j = 0; j < input_canvas.size_y; j++) {
 
-			text_obj.setPosition(disp_x + i * spacing + 5, disp_y + j * spacing);
+			text_obj.setPosition(disp_x + i * spacing_x - 10, disp_y + j * spacing_y);
 			text_obj.setString(input_canvas.cell_letters[i][j]);
 			input_window.draw(text_obj);
 
@@ -135,20 +137,20 @@ bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height
 	return false;
 }
 
-sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing) {
+sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x, int spacing_y) {
 
 
 	sf::Vector2i to_return;
 
 	int offset_x;
-	offset_x     = inpt.x % spacing;
+	offset_x     = inpt.x % spacing_x;
 	offset_x     = inpt.x - offset_x;
-	offset_x     = offset_x / spacing;
+	offset_x     = offset_x / spacing_x;
 
 	int offset_y;
-	offset_y     = inpt.y % spacing;
+	offset_y     = inpt.y % spacing_y;
 	offset_y     = inpt.y - offset_y;
-	offset_y     = offset_y / spacing;
+	offset_y     = offset_y / spacing_y;
 
 	to_return.x = offset_x;
 	to_return.y = offset_y;
@@ -179,7 +181,8 @@ int main()
 
 	int displacement_x = 350;
 	int displacement_y = 50;
-	int cell_size      = 40;
+	int cell_size_x      = 18;
+	int cell_size_y      = 40;
 
 	float zoom = 1.0;
 
@@ -267,10 +270,10 @@ int main()
 		sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 		//mouse_position.x = event ;
 		//mouse_position.y = ;
-		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, 20*cell_size, 20*cell_size);
+		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, 20*cell_size_x, 20*cell_size_y);
 		displacement_v.x     = displacement_x;
 		displacement_v.y     = displacement_y;
-		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size);
+		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size_x, cell_size_y);
 
 		mouse_button_down    = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
@@ -416,9 +419,9 @@ int main()
 
 		window.draw(text);
 
-		draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size);
-		draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size);
-		draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size, text);
+		draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+		draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+		draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text);
 		draw_buttons(   window, new_canvas, list_of_buttons, font);
 
 		window.setView(view1);
