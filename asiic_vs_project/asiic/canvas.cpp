@@ -2,6 +2,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <fstream>
 
 canvas::canvas(int input_size_x, int input_size_y) {
 
@@ -49,4 +50,26 @@ void canvas::set_char_selected(int input_char) {
 			}
 		}
 	}
+}
+
+void canvas::save_to(std::string file_name) {
+
+	std::string text = "";
+
+	for (int i = 0; i < cell_letters.size(); i++) {
+		for (int j = 0; j < cell_letters[0].size(); j++) {
+
+			text += cell_letters[j][i];
+		}
+
+		text += "\n";
+	}
+
+	//save this shit
+	std::ofstream out(file_name);
+	out << text;
+	out.close();
+
+	return;
+
 }

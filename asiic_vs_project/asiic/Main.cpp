@@ -7,16 +7,22 @@
 
 /*  TO DO
 	bucket selection
-	save to .txt
 	square selection
 	free selection
 	toggle selection
+	button system
+	right click pie menu
+	wand selection
+	"select by color"
+	define button events properly
+	invert colors ?
 */
 
 
 /* FIXED
 	correct mouse in view
 	better movement
+	save to .txt
 */
 
 void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
@@ -102,7 +108,16 @@ void draw_buttons(sf::RenderWindow& input_window, canvas input_canvas, std::vect
 
 		//std::cout << in_list_of_buttons[i]->x << in_list_of_buttons[i]->y << in_list_of_buttons[i]->width << in_list_of_buttons[i]->height << "\n";
 	}
+}
 
+int click_inside_index(sf::Vector2i inpt, std::vector<button*> in_list_of_buttons)
+{
+
+	for (int i = 0; i < in_list_of_buttons.size(); i++)
+	{
+		if (in_list_of_buttons[i]->is_inside(inpt.x, inpt.y)) { return i; }
+	}
+	return -1;
 }
 
 bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height) 
@@ -172,6 +187,8 @@ int main()
 
 	bool mouse_button_down;
 	bool prev_mouse_button_down;
+	bool left_mouse_button_just_down;
+	bool left_mouse_button_just_up;
 
 	sf::Vector2i mouse_position;
 	sf::Vector2f prev_mouse_position;
@@ -193,11 +210,11 @@ int main()
 
 	vector<button*> list_of_buttons;
 
-	list_of_buttons.push_back( new button(10,10,150,50,"superr") );
-	list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
+	list_of_buttons.push_back( new button(10,10,150,50,"save to txt") );
+	//list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
 
 
-	button new_leaf = button(10,10,150,50,"tananaa");
+	//button new_leaf = button(10,10,150,50,"tananaa");
 
 	/*
 	std::cout << list_of_buttons[0]->x;
@@ -205,11 +222,11 @@ int main()
 	std::cout << list_of_buttons[0]->width;
 	*/
 
-	std::cout << new_leaf.x;
-	std::cout << new_leaf.y;
-	std::cout << new_leaf.width;
-	std::cout << new_leaf.height;
-	std::cout << new_leaf.text;
+	//std::cout << new_leaf.x;
+	//std::cout << new_leaf.y;
+	//std::cout << new_leaf.width;
+	//std::cout << new_leaf.height;
+	//std::cout << new_leaf.text;
 	
 	//const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
 
@@ -269,8 +286,20 @@ int main()
 
 		if (mouse_button_down) // && !prev_mouse_button_down)
 		{
+
+			if (click_inside_index((sf::Vector2i)mouse_position, list_of_buttons) != -1) 
+			{
+				cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
+
+				if (click_inside_index((sf::Vector2i)mouse_position, list_of_buttons) == 0)
+				{
+					new_canvas.save_to("fileee.txt");
+				}
+			}
+
 			if (out_of_canvas)
 			{
+
 			}
 
 			else 
