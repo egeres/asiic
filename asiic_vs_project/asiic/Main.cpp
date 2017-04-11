@@ -8,8 +8,6 @@
 /*  TO DO
 	add ctrl+z
 	bucket selection
-	square selection
-	toggle selection
 	button system
 	right click pie menu
 	wand selection
@@ -23,7 +21,8 @@
 	correct mouse in view
 	better movement
 	save to .txt
-	free toggle selection
+	pencil toggle selection
+	square selection
 */
 
 void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
@@ -46,6 +45,8 @@ void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, 
 
 void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
 {
+
+	input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
 
 	sf::RectangleShape rectangle(sf::Vector2f(spacing, spacing));
 	rectangle.setFillColor(sf::Color(20, 20, 20));
@@ -162,8 +163,10 @@ int main()
 	int initial_size_x = 1500;
 	int initial_size_y = 900;
 
-	int  selecion_mode   = 0;
+	int  selecion_mode   = 1;
 	bool selection_value = true;
+	sf::Vector2i square_selection_initial_point;
+	sf::Vector2i square_selection_end_point;
 
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 
@@ -214,7 +217,9 @@ int main()
 
 	vector<button*> list_of_buttons;
 
-	list_of_buttons.push_back( new button(10,10,150,50,"save to txt") );
+	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt") );
+	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
+	list_of_buttons.push_back( new button(10,220,290,50,"square selection") );
 	//list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
 
 
@@ -293,18 +298,31 @@ int main()
 			}
 		}
 
+
+
+
+
+
+
+
+
+
+
 		if (mouse_button_down) // && !prev_mouse_button_down)
 		{
 
 			//click inside of a button
-			if (click_inside_index((sf::Vector2i)mouse_position, list_of_buttons) != -1) 
-			{
-				cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
 
-				if (click_inside_index((sf::Vector2i)mouse_position, list_of_buttons) == 0)
-				{
-					new_canvas.save_to("fileee.txt");
-				}
+			int index = click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
+
+			if (index != -1) 
+			{
+				//cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
+
+				if (index == 0) { new_canvas.save_to("fileee.txt"); }
+
+				if (index == 1) { selecion_mode = 0; }
+				if (index == 2) { selecion_mode = 1; }
 			}
 			//click inside of the canvas
 			else if (!out_of_canvas)
@@ -312,24 +330,59 @@ int main()
 
 				//cout << std::to_string(cell_location_vector.x) << "  "<< std::to_string(cell_location_vector.y) << "  :";
 
+				//selection mode, if adding true vlaues or false values...
+				if (left_mouse_button_just_down) { 
+					selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
+				}
+
 				//pencil toggle selection
 				if (selecion_mode == 0)
 				{
-					if (left_mouse_button_just_down)
-					{ 
-						selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
-					}
 					new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y] = selection_value;
 				}
 
 				//square toggle selection mode
 				if (selecion_mode == 1)
 				{
+					if (left_mouse_button_just_down)
+					{
+						square_selection_initial_point = cell_location_vector;
+						square_selection_end_point     = cell_location_vector;
+					}
+
+					square_selection_end_point = cell_location_vector;
+
+					new_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
 
 				}
 			}
 			
 		}
+
+		if (left_mouse_button_just_up) 
+		{
+			if (selecion_mode == 0)
+			{
+
+			}
+			if (selecion_mode == 1)
+			{
+				new_canvas.overlay_short_matrix(new_canvas.tmp_activ_cells);
+				new_canvas.clear_short_matrix();
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
 
 		if (event.type == sf::Event::TextEntered) {
 			if (event.text.unicode < 256) {
