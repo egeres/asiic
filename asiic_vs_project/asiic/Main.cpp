@@ -3,6 +3,21 @@
 #include <iostream>	
 #include <string> 
 
+
+/*  TO DO
+	bucket selection
+	save to .txt
+	square selection
+	free selection
+	toggle selection
+*/
+
+
+/* FIXED
+	correct mouse in view
+	better movement
+*/
+
 void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing)
 {
 
@@ -60,8 +75,8 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 	}
 }
 
-
-bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height) {
+bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height) 
+{
 
 	if (in_x > pos_x && in_x < pos_x + width) 
 	{
@@ -97,11 +112,21 @@ sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing) 
 int main()
 {
 	using namespace std;
+
+	int initial_size_x = 1500;
+	int initial_size_y = 900;
+
+	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+
 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor");
+
+	window.setView(view1);
 
 	int displacement_x = 50;
 	int displacement_y = 50;
 	int cell_size      = 40;
+
+	float zoom = 1.0;
 
 	canvas new_canvas = canvas(20, 20);
 
@@ -116,7 +141,7 @@ int main()
 	bool prev_mouse_button_down;
 
 	sf::Vector2i mouse_position;
-	sf::Vector2i prev_mouse_position;
+	sf::Vector2f prev_mouse_position;
 	sf::Vector2i cell_location_vector;
 
 	sf::Vector2i displacement_v;
@@ -130,7 +155,7 @@ int main()
 
 	sf::Text text;
 	text.setFont(font);
-	text.setCharacterSize(50);
+	text.setCharacterSize(30);
 	text.setColor(sf::Color::White);
 
 
@@ -138,11 +163,17 @@ int main()
 	{
 
 		//update variables
-		mouse_position       = sf::Mouse::getPosition(window);
-		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, + displacement_y, 20*cell_size, 20*cell_size);
+		//mouse_position       = sf::Mouse::getPosition(window);
+
+		sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+		//mouse_position.x = event ;
+		//mouse_position.y = ;
+
+		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, 20*cell_size, 20*cell_size);
 		displacement_v.x     = displacement_x;
 		displacement_v.y     = displacement_y;
-		cell_location_vector = cell_location(mouse_position - displacement_v, new_canvas, cell_size);
+		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size);
 
 		mouse_button_down    = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
@@ -152,14 +183,21 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			else if (event.type == sf::Event::MouseWheelMoved)
+			{
+				zoom += (event.mouseWheel.delta * 0.1);
+				
+				cout << zoom << "\n";
+
+				//view1.zoom(zoom);
+				view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
+			}
 		}
 
 		if (mouse_button_down) // && !prev_mouse_button_down)
 		{
 			if (out_of_canvas)
 			{
-				displacement_x += mouse_position.x - prev_mouse_position.x;
-				displacement_y += mouse_position.y - prev_mouse_position.y;
 			}
 
 			else 
@@ -177,6 +215,11 @@ int main()
 			}
 		}
 
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+		{
+			displacement_x += mouse_position.x - prev_mouse_position.x;
+			displacement_y += mouse_position.y - prev_mouse_position.y;
+		}
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
@@ -199,8 +242,9 @@ int main()
 
 		draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size);
 		draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size);
-		draw_characters(window, new_canvas, displacement_x, displacement_y, cell_size, text);
+		draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size, text);
 
+		window.setView(view1);
 		window.display();
 
 		//prev variables
