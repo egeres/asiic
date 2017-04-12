@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "canvas.h"
 #include "button.h"
-#include <iostream>	
-#include <string> 
+#include <iostream>
+#include <string>
 
 
 /*  TO DO
@@ -11,7 +11,7 @@
 	find cool use for the enter key
 	button system
 	define button events properly
-	
+
 	functionality / tools :
 		add ctrl+z
 		bucket selection
@@ -128,7 +128,7 @@ void draw_buttons(sf::RenderWindow& input_window, canvas input_canvas, std::vect
 	text.setFont(font);
 	text.setCharacterSize(30);
 	text.setColor(sf::Color::White);
-	
+
 	for (int i = 0; i < in_list_of_buttons.size(); i++)
 	{
 		sf::RectangleShape rectangle(sf::Vector2f(in_list_of_buttons[i]->width, in_list_of_buttons[i]->height));
@@ -156,12 +156,12 @@ int click_inside_index(sf::Vector2i inpt, std::vector<button*> in_list_of_button
 	return -1;
 }
 
-bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height) 
+bool inside_rect(int in_x, int in_y, int pos_x, int pos_y, int width, int height)
 {
 
-	if (in_x > pos_x && in_x < pos_x + width) 
+	if (in_x > pos_x && in_x < pos_x + width)
 	{
-		if (in_y > pos_y && in_y < pos_y + height) 
+		if (in_y > pos_y && in_y < pos_y + height)
 		{
 			return true;
 		}
@@ -254,7 +254,7 @@ int main()
 
 	int canvas_button_pos_x = 0;
 	int canvas_button_pos_y = 0;
-	
+
 	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
 
 	vector<button*> list_of_buttons;
@@ -282,7 +282,7 @@ int main()
 	//std::cout << new_leaf.width;
 	//std::cout << new_leaf.height;
 	//std::cout << new_leaf.text;
-	
+
 	//const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
 
 	//sf::Clock clock;
@@ -293,9 +293,9 @@ int main()
 
 		// Inside the main loop
 		clock.restart();
-		
+
 		// Do the drawing etc.
-		
+
         //sf::Time elapsedTime = clock.restart();
         //timeSinceLastUpdate += elapsedTime;
         //while (timeSinceLastUpdate > TimePerFrame)
@@ -323,7 +323,7 @@ int main()
 		cout << "yy32133244y\n";
 
 		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size_x, cell_size_y);
-		
+
 		//cell_location_vector = (sf::Vector2i)mouse_position;
 
 		mouse_button_down    = sf::Mouse::isButtonPressed(sf::Mouse::Left);
@@ -352,7 +352,7 @@ int main()
 			else if (event.type == sf::Event::MouseWheelMoved)
 			{
 				zoom += (event.mouseWheel.delta * 0.1);
-				
+
 				cout << zoom << "\n";
 
 				//view1.zoom(zoom);
@@ -377,7 +377,7 @@ int main()
 
 			int index = click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
 
-			if (index != -1) 
+			if (index != -1)
 			{
 				//cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
 
@@ -393,7 +393,7 @@ int main()
 				//cout << std::to_string(cell_location_vector.x) << "  "<< std::to_string(cell_location_vector.y) << "  :";
 
 				//selection mode, if adding true vlaues or false values...
-				if (left_mouse_button_just_down) { 
+				if (left_mouse_button_just_down) {
 					cout << "77_happy_free";
 					//selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
 					selection_value = !new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x];
@@ -422,11 +422,11 @@ int main()
 
 				}
 			}
-			
+
 		}
 		cout << " 88787777775\n";
-		if (left_mouse_button_just_up) 
-		{	
+		if (left_mouse_button_just_up)
+		{
 			if (selecion_mode == 0)
 			{
 
@@ -472,7 +472,7 @@ int main()
 
 					char value_to_add = ' ';
 					if(event.text.unicode != '\b')
-					{ 
+					{
 						value_to_add = event.text.unicode;
 
 						new_canvas.set_char_selected(value_to_add);
@@ -515,7 +515,7 @@ int main()
 				std::cout << "shift:" << event.key.shift << std::endl;
 				std::cout << "system:" << event.key.system << std::endl;ç
 				*/
-			
+
 		}
 
 		window.clear();
@@ -541,7 +541,7 @@ int main()
 		draw_buttons(   window, new_canvas, list_of_buttons, font);
 
 		cout << "_______________10\n";
-		
+
 
 		window.setView(view1);
 		window.display();
