@@ -6,20 +6,42 @@
 
 
 /*  TO DO
-	add ctrl+z
-	bucket selection
+
+	add debug mode
+	find cool use for the enter key
 	button system
-	right click pie menu
-	wand selection
-	"select by color"
 	define button events properly
-	invert colors ?
-	icon to the project
-	resize canvas
+	
+	functionality / tools :
+		add ctrl+z
+		bucket selection
+		resize canvas dynamically
+		wand selection
+		"select by color"
+		move selection with middle mouse ?
+		blinking cursor displace text sideways both left and right
+		move selection with arrow keys
+
+	menu / interface :
+		tool bar ?
+		help window ?
+		blinking cursor
+		invert colors ?
+		icon for the project
+		right click pie menu
+
+	bugs / improvements:
+		fix issue with pencil selection crashing w/ just 1 click
+		fix square selection lagging
+		fix "out of matrix" tier issues with the "blinking cursor"
+		better text input, keys lag by some reason
+
 */
 
 
 /* IMPLENTED / FIXED
+	backspace functionality implemented
+	type-in as normal text implemented
 	correct mouse in view
 	better movement
 	save to .txt
@@ -191,12 +213,12 @@ int main()
 
 	int displacement_x = 350;
 	int displacement_y = 50;
-	int cell_size_x      = 18;
+	int cell_size_x      = 17;
 	int cell_size_y      = 40;
 
 	float zoom = 1.0;
 
-	canvas new_canvas = canvas(40, 5);
+	canvas new_canvas = canvas(60, 18);
 
 	//new_canvas.activ_cells[3][4] = true;
 	//new_canvas.cell_letters[3][4] = 'e';
@@ -236,6 +258,8 @@ int main()
 	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
 
 	vector<button*> list_of_buttons;
+
+	bool prev_any_key_pressed;
 
 	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt") );
 	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
@@ -426,12 +450,46 @@ int main()
 
 
 
+		//text input...
+		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed) {
 
-		if (event.type == sf::Event::TextEntered) {
-			if (event.text.unicode < 256) {
-				cout << "36";
-				new_canvas.set_char_selected(event.text.unicode);
-				new_canvas.deselect_all();
+			if (event.text.unicode < 256)
+			{
+
+				if (new_canvas.return_ammount_selected() > 1)
+				{
+					// cosas
+					char value_to_add = ' ';
+					if(event.text.unicode != '\b') { value_to_add = event.text.unicode; }
+
+					new_canvas.set_char_selected(value_to_add);
+					new_canvas.deselect_all();
+
+				}
+				else if (new_canvas.return_ammount_selected() == 1)
+				{
+					// mas cosas
+
+					char value_to_add = ' ';
+					if(event.text.unicode != '\b')
+					{ 
+						value_to_add = event.text.unicode;
+
+						new_canvas.set_char_selected(value_to_add);
+						sf::Vector2i selection_position = new_canvas.first_position_selection();
+						new_canvas.deselect_all();
+						new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+					}
+					else
+					{
+						//value_to_add = event.text.unicode;
+
+						new_canvas.set_char_selected(value_to_add);
+						sf::Vector2i selection_position = new_canvas.first_position_selection();
+						new_canvas.deselect_all();
+						new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
+					}
+				}
 			}
 		}
 
@@ -491,6 +549,7 @@ int main()
 		//prev variables
 		prev_mouse_position    = mouse_position;
 		prev_mouse_button_down = mouse_button_down;
+		prev_any_key_pressed   = (event.type == sf::Event::TextEntered);
 
 		sf::Time elapsed = clock.getElapsedTime();
 		float sleepTime = 1.f / 60.f - elapsed.asSeconds();

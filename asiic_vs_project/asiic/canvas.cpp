@@ -186,3 +186,37 @@ void canvas::clear_short_matrix()
 	tmp_activ_cells.clear();
 	tmp_activ_cells.resize(size_x, std::vector<short>(size_y, 0));
 }
+
+int canvas::return_ammount_selected() {
+	int to_return = 0;
+
+	for (int i = 0; i < activ_cells.size(); i++)
+	{
+		for (int j = 0; j < activ_cells[0].size(); j++)
+		{
+
+			if (activ_cells[i][j]) { to_return++; }
+		}
+	}
+	return to_return;
+}
+
+sf::Vector2i canvas::first_position_selection() {
+	
+	sf::Vector2i to_return;
+
+	for (int i = 0; i < activ_cells.size(); i++)
+	{
+		for (int j = 0; j < activ_cells[0].size(); j++)
+		{
+
+			if (activ_cells[i][j]) 
+			{
+				to_return.x = j;
+				to_return.y = i;
+				return to_return; 
+			}
+		}
+	}
+	//return to_return;
+}
