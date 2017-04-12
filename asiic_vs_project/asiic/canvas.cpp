@@ -5,6 +5,7 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <iostream>
 
 canvas::canvas(int input_size_x, int input_size_y) {
 
@@ -61,7 +62,7 @@ void canvas::save_to(std::string file_name) {
 	for (int i = 0; i < cell_letters.size(); i++) {
 		for (int j = 0; j < cell_letters[0].size(); j++) {
 
-			text += cell_letters[j][i];
+			text += cell_letters[i][j];
 		}
 
 		text += "\n";
@@ -85,7 +86,7 @@ void canvas::set_square_selection_temporal(sf::Vector2i starting_point, sf::Vect
 
 	//es necesario llamar esto en bucle ? ugh, diría que no...
 	tmp_activ_cells.clear();
-	tmp_activ_cells.resize(size_x, std::vector<short>(size_y, 0));
+	tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
 
 	//for (int i = 0; i < dif_x; i++)
 	//{
@@ -96,54 +97,88 @@ void canvas::set_square_selection_temporal(sf::Vector2i starting_point, sf::Vect
 	//	}
 	//}
 
-	for (int i = 0; i < std::abs(dif_x) + 1; i++)
+	//std::cout << "angel malo";
+	
+	std::cout << " == " << dif_y << " _ " << dif_x;
+
+	for (int i = 0; i < std::abs(dif_y) + 1; i++)
 	{	
 		if (dif_x > 0) {
-			for (int j = 0; j < std::abs(dif_y) + 1; j++)
+			for (int j = 0; j < std::abs(dif_x) + 1; j++)
 			{
 				if (dif_y > 0) {
-					tmp_activ_cells[           i+starting_point.x][j+starting_point.y] = 1;
-					if (value) tmp_activ_cells[i+starting_point.x][j+starting_point.y] = 2;
+
+					std::cout << " a " << (i+starting_point.y) << " " << (j+starting_point.x);
+
+					tmp_activ_cells[           i+starting_point.y][j+starting_point.x] = 1;
+					if (value) tmp_activ_cells[i+starting_point.y][j+starting_point.x] = 2;
+
 				}
 				else
 				{
-					tmp_activ_cells[           i+starting_point.x][-j+starting_point.y] = 1;
-					if (value) tmp_activ_cells[i+starting_point.x][-j+starting_point.y] = 2;
+					std::cout << " b " << (-i+starting_point.y) << " " << (j+starting_point.x);
+
+					tmp_activ_cells[           -i+starting_point.y][+j+starting_point.x] = 1;
+					if (value) tmp_activ_cells[-i+starting_point.y][+j+starting_point.x] = 2;
+
 				}
 			}
 		}
 		else
 		{
-			for (int j = 0; j < std::abs(dif_y) + 1; j++)
+			for (int j = 0; j < std::abs(dif_x) + 1; j++)
 			{
 				if (dif_y > 0) {
-					tmp_activ_cells[           -i+starting_point.x][j+starting_point.y] = 1;
-					if (value) tmp_activ_cells[-i+starting_point.x][j+starting_point.y] = 2;
+
+					std::cout << " c " << (-i+starting_point.y) << " " << (-j+starting_point.x);
+
+					tmp_activ_cells[           i+starting_point.y][-j+starting_point.x] = 1;
+					if (value) tmp_activ_cells[i+starting_point.y][-j+starting_point.x] = 2;
+
 				}
 				else
 				{
-					tmp_activ_cells[           -i+starting_point.x][-j+starting_point.y] = 1;
-					if (value) tmp_activ_cells[-i+starting_point.x][-j+starting_point.y] = 2;
+					std::cout << " d " << (-i+starting_point.y) << " " << (+j+starting_point.x);
+
+					tmp_activ_cells[           -i+starting_point.y][-j+starting_point.x] = 1;
+					if (value) tmp_activ_cells[-i+starting_point.y][-j+starting_point.x] = 2;
+
 				}
 			}
 		}
 	}
 
-	tmp_activ_cells[ending_point.x][ending_point.y] = 1;
-	if (value) tmp_activ_cells[ending_point.x][ending_point.y] = 2;
+	//std::cout << " x " << ending_point.x << " y " << ending_point.y;
+
+	tmp_activ_cells[           ending_point.y][ending_point.x] = 1;
+	if (value) tmp_activ_cells[ending_point.y][ending_point.x] = 2;
 
 }
 
 //std::vector<std::vector<char>> canvas::overlay_short_matrix(std::vector<std::vector<short>> input_matrix) {
 void canvas::overlay_short_matrix(std::vector<std::vector<short>> input_matrix) {
+
+	std::cout << " \n activ_cells x = ";
+
+	std::cout << activ_cells.size()     << " y = ";
+	std::cout << activ_cells[0].size()  << " input_matrix x =";
+	std::cout << input_matrix.size()    << " y= ";
+	std::cout << input_matrix[0].size() << " \n";
+
+	
 	for (int i = 0; i < input_matrix.size(); i++)
 	{
 		for (int j = 0; j < input_matrix[0].size(); j++)
 		{
-			if (input_matrix[j][i] == 2) { activ_cells[j][i] = true; }
-			if (input_matrix[j][i] == 1) { activ_cells[j][i] = false; }
+			
+			//std::cout << " => " << i << "   " << j << "\n";
+
+			if (input_matrix[i][j] == 2) { activ_cells[i][j] = true; }
+			if (input_matrix[i][j] == 1) { activ_cells[i][j] = false; }
 		}
 	}
+
+	std::cout << "ooo";
 }
 
 void canvas::clear_short_matrix()

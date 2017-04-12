@@ -49,23 +49,31 @@ void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, 
 void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y)
 {
 
+	std::cout << "couuuuuuuuut0";
 	input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
 
+	std::cout << "couuuuuuuuut1";
+
 	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
+	std::cout << "couuuuuuuuut2";
 	rectangle.setFillColor(sf::Color(20, 20, 20));
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
 
-	for (int i = 0; i < input_canvas.size_x; i++) {
-		for (int j = 0; j < input_canvas.size_y; j++) {
+	std::cout << "couuuuuuuuut3";
+	for (int i = 0; i < input_canvas.size_y; i++) {
+		for (int j = 0; j < input_canvas.size_x; j++) {
 
 			if (input_canvas.activ_cells[i][j]) {
-				rectangle.setPosition(disp_x + i * spacing_x, disp_y + j * spacing_y);
+
+				rectangle.setPosition(disp_x+j*spacing_x, disp_y+i*spacing_y);
+
 				input_window.draw(rectangle);
 			}
 
 		}
 	}
+	std::cout << "couuuuuuuuut4";
 }
 
 void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y, sf::Text& text_obj)
@@ -76,10 +84,11 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
 
-	for (int i = 0; i < input_canvas.size_x; i++) {
-		for (int j = 0; j < input_canvas.size_y; j++) {
+	for (int i = 0; i < input_canvas.size_y; i++) {
+		for (int j = 0; j < input_canvas.size_x; j++) {
 
-			text_obj.setPosition(disp_x + i * spacing_x - 10, disp_y + j * spacing_y);
+			text_obj.setPosition(disp_x + j * spacing_x - 10, disp_y + i * spacing_y);
+
 			text_obj.setString(input_canvas.cell_letters[i][j]);
 			input_window.draw(text_obj);
 
@@ -187,12 +196,14 @@ int main()
 
 	float zoom = 1.0;
 
-	canvas new_canvas = canvas(20, 20);
+	canvas new_canvas = canvas(40, 5);
 
-	new_canvas.activ_cells[3][4] = true;
-	new_canvas.cell_letters[3][4] = 'e';
-	new_canvas.cell_letters[3][5] = 'e';
-	new_canvas.cell_letters[3][6] = 'e';
+	//new_canvas.activ_cells[3][4] = true;
+	//new_canvas.cell_letters[3][4] = 'e';
+	//new_canvas.cell_letters[3][5] = 'e';
+	//new_canvas.cell_letters[3][6] = 'e';
+
+	cout << "yy444y\n";
 
 	bool out_of_canvas = true;
 
@@ -278,10 +289,18 @@ int main()
 		sf::Vector2f mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 		//mouse_position.x = event ;
 		//mouse_position.y = ;
-		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, 20*cell_size_x, 20*cell_size_y);
+
+		cout << "y444yy||n\n";
+
+		out_of_canvas        = !inside_rect( mouse_position.x, mouse_position.y, displacement_x, displacement_y, new_canvas.size_x*cell_size_x, new_canvas.size_y*cell_size_y);
 		displacement_v.x     = displacement_x;
 		displacement_v.y     = displacement_y;
+
+		cout << "yy32133244y\n";
+
 		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size_x, cell_size_y);
+		
+		//cell_location_vector = (sf::Vector2i)mouse_position;
 
 		mouse_button_down    = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
@@ -291,8 +310,11 @@ int main()
 		left_mouse_button_just_up = false;
 		if (!mouse_button_down && prev_mouse_button_down) { left_mouse_button_just_up = true; std::cout << "up";}
 
+		cout << "yy4333rry\n";
 		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 10;
 		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 10;
+
+		cout << "        5555\n";
 
 		canvas_button.x = canvas_button_pos_x;
 		canvas_button.y = canvas_button_pos_y;
@@ -320,7 +342,7 @@ int main()
 
 
 
-
+		cout << "   33444444 5555\n";
 
 
 
@@ -335,7 +357,7 @@ int main()
 			{
 				//cout << click_inside_index((sf::Vector2i)mouse_position, list_of_buttons);
 
-				if (index == 0) { new_canvas.save_to("fileee.txt"); }
+				if (index == 0) { cout << "eg";new_canvas.save_to("fileee.txt"); }
 
 				if (index == 1) { selecion_mode = 0; }
 				if (index == 2) { selecion_mode = 1; }
@@ -348,12 +370,15 @@ int main()
 
 				//selection mode, if adding true vlaues or false values...
 				if (left_mouse_button_just_down) { 
-					selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
+					cout << "77_happy_free";
+					//selection_value = !new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y];
+					selection_value = !new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x];
 				}
 
 				//pencil toggle selection
 				if (selecion_mode == 0)
 				{
+					cout << "yyy";
 					new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y] = selection_value;
 				}
 
@@ -368,21 +393,23 @@ int main()
 
 					square_selection_end_point = cell_location_vector;
 
+					cout << "setsqqee";
 					new_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
 
 				}
 			}
 			
 		}
-
+		cout << " 88787777775\n";
 		if (left_mouse_button_just_up) 
-		{
+		{	
 			if (selecion_mode == 0)
 			{
 
 			}
 			if (selecion_mode == 1)
 			{
+				cout << "34";
 				new_canvas.overlay_short_matrix(new_canvas.tmp_activ_cells);
 				new_canvas.clear_short_matrix();
 			}
@@ -390,7 +417,7 @@ int main()
 
 
 
-
+		cout << "_______________2\n";
 
 
 
@@ -402,10 +429,13 @@ int main()
 
 		if (event.type == sf::Event::TextEntered) {
 			if (event.text.unicode < 256) {
+				cout << "36";
 				new_canvas.set_char_selected(event.text.unicode);
 				new_canvas.deselect_all();
 			}
 		}
+
+		cout << "_______________3\n";
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
@@ -413,9 +443,11 @@ int main()
 			displacement_y += mouse_position.y - prev_mouse_position.y;
 		}
 
+		cout << "_______________4\n";
+
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-
+				cout << "efg";
 				new_canvas.deselect_all();
 
 				/*
@@ -430,12 +462,28 @@ int main()
 
 		window.clear();
 
+		cout << "_______________5\n";
+
 		window.draw(text);
 
+		cout << "_______________6\n";
+
 		draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+		cout << "_______________7\n";
+
 		draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+		cout << "_______________8\n";
+
 		draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text);
+
+		cout << "_______________9\n";
+
 		draw_buttons(   window, new_canvas, list_of_buttons, font);
+
+		cout << "_______________10\n";
+		
 
 		window.setView(view1);
 		window.display();
