@@ -31,7 +31,6 @@
 		right click pie menu
 
 	bugs / improvements:
-		fix issue with pencil selection crashing w/ just 1 click
 		fix square selection lagging
 		fix "out of matrix" tier issues with the "blinking cursor"
 		better text input, keys lag by some reason
@@ -40,6 +39,7 @@
 
 
 /* IMPLENTED / FIXED
+	fix issue with pencil selection crashing w/ just 1 click
 	backspace functionality implemented
 	type-in as normal text implemented
 	correct mouse in view
@@ -197,7 +197,7 @@ int main()
 	int initial_size_x = 1500;
 	int initial_size_y = 900;
 
-	int  selecion_mode   = 1;
+	int  selecion_mode   = 4;
 	bool selection_value = true;
 	sf::Vector2i square_selection_initial_point;
 	sf::Vector2i square_selection_end_point;
@@ -218,7 +218,7 @@ int main()
 
 	float zoom = 1.0;
 
-	canvas new_canvas = canvas(60, 18);
+	canvas new_canvas = canvas(8, 8);
 
 	//new_canvas.activ_cells[3][4] = true;
 	//new_canvas.cell_letters[3][4] = 'e';
@@ -262,9 +262,15 @@ int main()
 	bool prev_any_key_pressed;
 
 	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt") );
+
 	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
 	list_of_buttons.push_back( new button(10,220,290,50,"square selection") );
-	list_of_buttons.push_back( &canvas_button );
+	list_of_buttons.push_back( new button(10,290,290,50,"Wand selection")   ); // 3
+
+	list_of_buttons.push_back( &canvas_button ); // 3
+
+	//list_of_buttons.push_back( new button(10,290,290,50,"Wand selection") ); // 4
+	//list_of_buttons.push_back( new button(10,370,290,50,"Wand") );   // 5
 	//list_of_buttons.push_back( new button(10,70,150,50,"awesom") );
 
 
@@ -385,6 +391,7 @@ int main()
 
 				if (index == 1) { selecion_mode = 0; }
 				if (index == 2) { selecion_mode = 1; }
+				if (index == 3) { selecion_mode = 2; }
 			}
 			//click inside of the canvas
 			else if (!out_of_canvas)
@@ -403,7 +410,7 @@ int main()
 				if (selecion_mode == 0)
 				{
 					cout << "yyy";
-					new_canvas.activ_cells[cell_location_vector.x][cell_location_vector.y] = selection_value;
+					new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x] = selection_value;
 				}
 
 				//square toggle selection mode
@@ -420,6 +427,14 @@ int main()
 					cout << "setsqqee";
 					new_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
 
+				}
+
+				if (selecion_mode == 2 && left_mouse_button_just_down)
+				{
+					cout << "esto...";
+					new_canvas.deselect_all();
+					cout << " parece ";
+					new_canvas.select_bucket(cell_location_vector);
 				}
 			}
 			
