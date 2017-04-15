@@ -192,7 +192,6 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 		}
 
 	}
-
 }
 
 //function which overlays the temporary matrix over the original matrix activ_cells

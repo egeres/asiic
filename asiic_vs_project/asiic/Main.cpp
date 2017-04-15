@@ -28,6 +28,7 @@
 		invert colors ?
 		icon for the project
 		right click pie menu
+		show the "pixel" position
 
 	bugs / improvements:
 		fix square selection lagging
@@ -218,6 +219,7 @@ int main()
 	bool prev_any_key_is_pressed;
 	sf::Vector2f mouse_position;
 	sf::Vector2f prev_mouse_position;
+	sf::Vector2f initial_mouse_position;
 	sf::Vector2i cell_location_vector;
 	sf::Vector2i displacement_v;
 	sf::Vector2i selection_position;
@@ -230,8 +232,9 @@ int main()
 	text.setColor(sf::Color::White);
 
 	//button system below
-	int canvas_button_pos_x = 0;
-	int canvas_button_pos_y = 0;
+	int  canvas_button_pos_x = 0;
+	int  canvas_button_pos_y = 0;
+	bool moving_canvas_button = false;
 	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
 
 	vector<button*> list_of_buttons;
@@ -239,7 +242,7 @@ int main()
 	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
 	list_of_buttons.push_back( new button(10,220,290,50,"square selection") );
 	list_of_buttons.push_back( new button(10,290,290,50,"Wand selection")   ); // 3
-	list_of_buttons.push_back( &canvas_button ); // 3
+	list_of_buttons.push_back( &canvas_button ); // 4
 
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
@@ -266,8 +269,18 @@ int main()
 		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 10;
 
 		//we move the corner button
-		canvas_button.x     = canvas_button_pos_x;
-		canvas_button.y     = canvas_button_pos_y;
+		if (moving_canvas_button)
+		{
+			canvas_button.x     += (- prev_mouse_position + mouse_position).x;
+			//canvas_button_pos_x += (- prev_mouse_position + mouse_position).x;
+			canvas_button.y     += (- prev_mouse_position + mouse_position).y;
+			//canvas_button_pos_y += (- prev_mouse_position + mouse_position).y;
+		}
+		else
+		{
+			canvas_button.x     = canvas_button_pos_x;
+			canvas_button.y     = canvas_button_pos_y;
+		}
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -297,6 +310,12 @@ int main()
 				if (index == 1) { selecion_mode = 0; }
 				if (index == 2) { selecion_mode = 1; }
 				if (index == 3) { selecion_mode = 2; }
+
+				if (index == 4 && left_mouse_button_just_down)
+				{
+					initial_mouse_position = mouse_position;
+					moving_canvas_button = true;
+				}
 			}
 
 			//click happened inside of the canvas
@@ -339,6 +358,10 @@ int main()
 		}
 		if (left_mouse_button_just_up) 
 		{	
+			if (moving_canvas_button)
+			{
+				moving_canvas_button = false;
+			}
 			if (selecion_mode == 0)
 			{
 
