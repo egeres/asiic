@@ -202,7 +202,7 @@ int main()
 	sf::Vector2i square_selection_end_point;
 
 	//the canvas itself
-	canvas new_canvas = canvas(8, 8);
+	canvas new_canvas = canvas(40, 15);
 	//new_canvas.activ_cells[3][4] = true;
 	//new_canvas.cell_letters[3][4] = 'e';
 	//new_canvas.cell_letters[3][5] = 'e';
