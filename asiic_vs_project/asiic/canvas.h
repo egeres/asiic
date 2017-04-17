@@ -18,6 +18,7 @@ public:
 	int return_ammount_selected();
 	sf::Vector2i first_position_selection();
 	void select_bucket(sf::Vector2i initial_point);
+	void resize(int, int);
 
 	int size_x, size_y;
 	std::vector<std::vector<bool> > activ_cells;

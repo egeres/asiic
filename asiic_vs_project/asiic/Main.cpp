@@ -76,8 +76,21 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 	rectangle.setFillColor(sf::Color(20, 20, 20));
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
-	for (int i = 0; i < input_canvas.size_y; i++) {
-		for (int j = 0; j < input_canvas.size_x; j++) {
+
+	//std::cout << "input_canvas_size " << input_canvas.size_x << "\n";
+	//std::cout << "this cell...      " << activ_cells[0].size()activ_cells[200][0] << "\n";
+	//std::cout << "dimensions are : " << input_canvas.activ_cells[0].size() << " by " << input_canvas.activ_cells.size();
+
+	//for (int i = 0; i < input_canvas.size_y; i++)
+	//{
+	//	for (int j = 0; j < input_canvas.size_x; j++)
+	//	{
+
+	for (int i = 0; i < input_canvas.activ_cells.size(); i++)
+	{
+		for (int j = 0; j < input_canvas.activ_cells[0].size(); j++)
+		{
+			//std::cout << " x" << j << " y" << i << "|   ";
 
 			if (input_canvas.activ_cells[i][j]) {
 
@@ -88,6 +101,8 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 
 		}
 	}
+
+	//std::cout << "i'm finished !\n";
 }
 
 //function to draw the characters from the matrix
@@ -98,9 +113,14 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 	//rectangle.setOutlineThickness(1);
 	//rectangle.setOutlineColor(sf::Color(100, 100, 100));
 
-	for (int i = 0; i < input_canvas.size_y; i++) 
+	//for (int i = 0; i < input_canvas.size_y; i++) 
+	//{
+	//	for (int j = 0; j < input_canvas.size_x; j++) 
+	//	{
+
+	for (int i = 0; i < input_canvas.cell_letters.size(); i++)
 	{
-		for (int j = 0; j < input_canvas.size_x; j++) 
+		for (int j = 0; j < input_canvas.cell_letters[0].size(); j++)
 		{
 			text_obj.setPosition(disp_x + j * spacing_x - 10, disp_y + i * spacing_y);
 			text_obj.setString(input_canvas.cell_letters[i][j]);
@@ -130,6 +150,24 @@ void draw_buttons(sf::RenderWindow& input_window, canvas input_canvas, std::vect
 		text.setString(in_list_of_buttons[i]->text);
 		text.setPosition(  in_list_of_buttons[i]->x, in_list_of_buttons[i]->y);
 		input_window.draw(text);
+	}
+}
+
+//draw the new canvas when resizing
+void draw_new_canvas_size(sf::RenderWindow& input_window, canvas input_canvas, sf::Vector2i increment_decrement_vector, int disp_x, int disp_y, int spacing_x, int spacing_y)
+{
+	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
+	rectangle.setFillColor(sf::Color(25, 25, 25, 50));
+	rectangle.setOutlineThickness(1);
+	rectangle.setOutlineColor(sf::Color(30, 30, 30));
+
+	for (int i = 0; i < input_canvas.size_x + increment_decrement_vector.x; i++)
+	{
+		for (int j = 0; j < input_canvas.size_y + increment_decrement_vector.y; j++)
+		{
+			rectangle.setPosition(disp_x + i * spacing_x, disp_y + j * spacing_y);
+			input_window.draw(rectangle);
+		}
 	}
 }
 
@@ -223,6 +261,8 @@ int main()
 	sf::Vector2i cell_location_vector;
 	sf::Vector2i displacement_v;
 	sf::Vector2i selection_position;
+	sf::Vector2i increment_decrement_vector;
+
 	//text item for the GUI system
 	sf::Font font;
 	if (!font.loadFromFile("consolas.ttf")) { /* error... */ }
@@ -246,7 +286,10 @@ int main()
 
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
+	
 	{
+
+		std::cout << "0\n";
 
 		clock.restart();
 		
@@ -261,12 +304,18 @@ int main()
 		left_mouse_button_is_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
 		left_mouse_button_just_down = false;
-		if (left_mouse_button_is_down && !prev_left_mouse_button_is_down) { left_mouse_button_just_down = true; std::cout << "left m";}
+		if (left_mouse_button_is_down && !prev_left_mouse_button_is_down) { 
+			left_mouse_button_just_down = true; //std::cout << "left m";
+		}
 		left_mouse_button_just_up = false;
-		if (!left_mouse_button_is_down && prev_left_mouse_button_is_down) { left_mouse_button_just_up = true; std::cout << "up";}
+		if (!left_mouse_button_is_down && prev_left_mouse_button_is_down) { 
+			left_mouse_button_just_up = true; //std::cout << "up";
+		}
 
 		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 10;
 		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 10;
+
+		std::cout << "1\n";
 
 		//we move the corner button
 		if (moving_canvas_button)
@@ -275,12 +324,20 @@ int main()
 			//canvas_button_pos_x += (- prev_mouse_position + mouse_position).x;
 			canvas_button.y     += (- prev_mouse_position + mouse_position).y;
 			//canvas_button_pos_y += (- prev_mouse_position + mouse_position).y;
+
+			//increment_decrement_vector = cell_location((sf::Vector2i)mouse_position - displacement_v - (sf::Vector2i)initial_mouse_position, new_canvas, cell_size_x, cell_size_y);
+			increment_decrement_vector =                               cell_location((sf::Vector2i)mouse_position         - displacement_v , new_canvas, cell_size_x, cell_size_y);
+			increment_decrement_vector = increment_decrement_vector - (cell_location((sf::Vector2i)initial_mouse_position - displacement_v , new_canvas, cell_size_x, cell_size_y));
+
+			cout << increment_decrement_vector.x << " O " << increment_decrement_vector.y << "\n";
 		}
 		else
 		{
 			canvas_button.x     = canvas_button_pos_x;
 			canvas_button.y     = canvas_button_pos_y;
 		}
+
+		std::cout << "2\n";
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -296,6 +353,8 @@ int main()
 				view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
 			}
 		}
+
+		std::cout << "3\n";
 
 		//button handling
 		if (left_mouse_button_is_down) // && !prev_left_mouse_button_is_down)
@@ -361,6 +420,7 @@ int main()
 			if (moving_canvas_button)
 			{
 				moving_canvas_button = false;
+				new_canvas.resize(increment_decrement_vector.x, increment_decrement_vector.y);
 			}
 			if (selecion_mode == 0)
 			{
@@ -376,6 +436,8 @@ int main()
 
 			}
 		}
+
+		std::cout << "4\n";
 
 		//text input management, pretty much it works when something in the canvas is selected...
 		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed) 
@@ -416,6 +478,8 @@ int main()
 				}
 			}
 		}
+
+		std::cout << "5\n";
 
 		if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
 		{
@@ -464,6 +528,8 @@ int main()
 			displacement_y += mouse_position.y - prev_mouse_position.y;
 		}
 
+		std::cout << "6\n";
+
 		//used to clear the selection
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
@@ -479,14 +545,25 @@ int main()
 		std::cout << "system:" << event.key.system << std::endl;ç
 		*/
 
+		std::cout << "7\n";
 
 		//the drawing part of the loop
 		window.clear();
 		window.draw(text);
+			std::cout << "7.0\n";
 			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+			std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+			std::cout << "7.2\n";
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text);
+			std::cout << "7.3\n";
 			draw_buttons(   window, new_canvas, list_of_buttons, font);
+			std::cout << "7.4\n";
+
+			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+		std::cout << "8\n";
+
 		window.setView(view1);
 		window.display();
 
@@ -503,6 +580,8 @@ int main()
 		{
 		    sf::sleep(sf::seconds(sleepTime));
 		}
+
+		std::cout << "9\n";
 	}
 	return 0;
 }

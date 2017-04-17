@@ -141,7 +141,7 @@ bool check_inside_vector_list(std::vector<sf::Vector2i*> input_vector, sf::Vecto
 //function that selects all characters by similarity and closure
 void canvas::select_bucket(sf::Vector2i initial_point)
 {
-
+	std::cout << "started bucket selection...\n";
 	std::vector<sf::Vector2i*> open_list;
 	std::vector<sf::Vector2i*> clos_list;
 
@@ -192,6 +192,8 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 		}
 
 	}
+	std::cout << "started bucket selection...\n";
+
 }
 
 //function which overlays the temporary matrix over the original matrix activ_cells
@@ -246,5 +248,26 @@ sf::Vector2i canvas::first_position_selection()
 				return to_return; 
 			}
 		}
+	}
+}
+
+//resizes the canvas to a new size, the input consists on two integers like -3, 6
+void canvas::resize(int input_x, int input_y)
+{
+	if ((size_x + input_x > 0) && (size_y + input_y > 0))
+	{
+		size_x += input_x;
+		size_y += input_y;
+
+		std::cout << "esto e\n";
+		activ_cells.resize(    size_y, std::vector<bool>(size_x, false));
+		tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
+		cell_letters.resize(   size_y, std::vector<char>(size_x, ' '));
+
+		std::cout << "resized to : "<< activ_cells[0].size() << " : " << activ_cells.size() << "\n";
+	}
+	else
+	{
+		std::cout << "cannot resize that...";
 	}
 }
