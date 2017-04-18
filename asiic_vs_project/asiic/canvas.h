@@ -21,8 +21,11 @@ public:
 	void resize(int, int);
 
 	int size_x, size_y;
-	std::vector<std::vector<bool> > activ_cells;
+	std::vector<std::vector<bool> >  activ_cells;
 	std::vector<std::vector<short> > tmp_activ_cells;
+	std::vector<std::vector<char> >  cell_letters;
 
-	std::vector<std::vector<char> > cell_letters;
+	std::vector<std::vector<bool> >  buffer_activ_cells;
+	std::vector<std::vector<short> > buffer_tmp_activ_cells;
+	std::vector<std::vector<char> >  buffer_cell_letters;
 };

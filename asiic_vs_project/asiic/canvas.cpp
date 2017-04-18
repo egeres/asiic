@@ -28,6 +28,7 @@ canvas::canvas(int input_size_x, int input_size_y)
 //turns all the activ_cells in false
 void canvas::deselect_all()
 {
+	std::cout << "started deselecting all...\n";
 	for (int i = 0; i < activ_cells.size(); i++)
 	{
 		for (int j = 0; j < activ_cells[0].size(); j++)
@@ -35,6 +36,8 @@ void canvas::deselect_all()
 			activ_cells[i][j] = false;
 		}
 	}
+	std::cout << "finished deselecting all...\n";
+
 }
 
 //turns all the selected cells in that specific char
@@ -141,12 +144,15 @@ bool check_inside_vector_list(std::vector<sf::Vector2i*> input_vector, sf::Vecto
 //function that selects all characters by similarity and closure
 void canvas::select_bucket(sf::Vector2i initial_point)
 {
-	std::cout << "started bucket selection...\n";
+	//std::cout << "started bucket selection...\n";
 	std::vector<sf::Vector2i*> open_list;
 	std::vector<sf::Vector2i*> clos_list;
 
 	char selected_char = cell_letters[initial_point.y][initial_point.x];
 	open_list.push_back(new sf::Vector2i(initial_point.x,initial_point.y));
+
+	//std::cout << "b.0\n";
+
 
 	while (open_list.size() > 0)
 	{
@@ -155,30 +161,42 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 		for (int i = 0; i < asigned_size; i++)
 		{
 
+			//std::cout << "b.1\n";
+
 			sf::Vector2i* selected_point = open_list[0];
 
-			if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y-1 >= 0 && selected_point->y-1 <= size_y-1) &&
+			//std::cout << "b.2\n";
+
+			//if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y-1 >= 0 && selected_point->y-1 <= size_y-1) &&
+			if ((selected_point->x >= 0 && selected_point->x <= activ_cells[0].size()-1 && selected_point->y-1 >= 0 && selected_point->y-1 <= activ_cells.size()-1) &&
 				(cell_letters[selected_point->y-1][selected_point->x] == selected_char) && 
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x,selected_point->y-1))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x,selected_point->y-1)))) {
+				//std::cout << "b.2.0\n";
+
 				open_list.push_back(new sf::Vector2i(selected_point->x,selected_point->y-1));
 			}
 
-			if ((selected_point->x+1 >= 0 && selected_point->x+1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
+			//std::cout << "b.3\n";
+
+			//if ((selected_point->x+1 >= 0 && selected_point->x+1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
+			if ((selected_point->x+1 >= 0 && selected_point->x+1 <= activ_cells[0].size()-1 && selected_point->y >= 0 && selected_point->y <= activ_cells.size()-1) &&
 				(cell_letters[selected_point->y][selected_point->x+1] == selected_char) && 
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x+1,selected_point->y))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x+1,selected_point->y)))) {
 				open_list.push_back(new sf::Vector2i(selected_point->x+1,selected_point->y));
 			}
 
-			if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y+1 >= 0 && selected_point->y+1 <= size_y-1) &&
+			//if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y+1 >= 0 && selected_point->y+1 <= size_y-1) &&
+			if ((selected_point->x >= 0 && selected_point->x <= activ_cells[0].size()-1 && selected_point->y+1 >= 0 && selected_point->y+1 <= activ_cells.size()-1) &&
 				(cell_letters[selected_point->y+1][selected_point->x] == selected_char) && 
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x,selected_point->y+1))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x,selected_point->y+1)))) {
 				open_list.push_back(new sf::Vector2i(selected_point->x,selected_point->y+1));
 			}
 
-			if ((selected_point->x-1 >= 0 && selected_point->x-1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
+			//if ((selected_point->x-1 >= 0 && selected_point->x-1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
+			if ((selected_point->x-1 >= 0 && selected_point->x-1 <= activ_cells[0].size()-1 && selected_point->y >= 0 && selected_point->y <= activ_cells.size()-1) &&
 				(cell_letters[selected_point->y][selected_point->x-1] == selected_char) && 
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x-1,selected_point->y))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x-1,selected_point->y)))) {
@@ -192,7 +210,7 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 		}
 
 	}
-	std::cout << "started bucket selection...\n";
+	//std::cout << "started bucket selection...\n";
 
 }
 
@@ -256,18 +274,74 @@ void canvas::resize(int input_x, int input_y)
 {
 	if ((size_x + input_x > 0) && (size_y + input_y > 0))
 	{
+
+		int for_size_x;
+		int for_size_y;
+
 		size_x += input_x;
 		size_y += input_y;
 
-		std::cout << "esto e\n";
-		activ_cells.resize(    size_y, std::vector<bool>(size_x, false));
-		tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
-		cell_letters.resize(   size_y, std::vector<char>(size_x, ' '));
+		//std::cout << "esto e\n";
 
-		std::cout << "resized to : "<< activ_cells[0].size() << " : " << activ_cells.size() << "\n";
+		buffer_activ_cells     = activ_cells;
+		buffer_tmp_activ_cells = tmp_activ_cells;
+		buffer_cell_letters    = cell_letters;
+
+		activ_cells.clear();
+		tmp_activ_cells.clear();
+		cell_letters.clear();
+
+		activ_cells.resize(    size_y, std::vector<bool>( size_x, false));
+		tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
+		cell_letters.resize(   size_y, std::vector<char>( size_x, ' '));
+
+		//std::cout << "resized to : "<< activ_cells[0].size() << " : " << activ_cells.size() << "\n";
+
+		std::cout << "resizing... 0\n";
+
+		std::cout << "[" << activ_cells.size() << " " << buffer_activ_cells.size() << "] ";
+		std::cout << "[" << activ_cells[0].size() << " " << buffer_activ_cells[0].size() << "] \n";
+
+		if (activ_cells.size() < buffer_activ_cells.size()) 
+		{ for_size_y = activ_cells.size(); }
+		else { for_size_y = buffer_cell_letters.size(); }
+
+		if (activ_cells[0].size() < buffer_activ_cells[0].size()) 
+		{ for_size_x = activ_cells[0].size(); }
+		else { for_size_x = buffer_cell_letters[0].size(); }
+
+		std::cout << " final x = " << for_size_x << " final y = " << for_size_y;
+
+		std::cout << "\nresizing... 1\n";
+
+		for (int y = 0; y < for_size_y; y++)
+		{
+			for (int x = 0; x < for_size_x; x++)
+			{
+
+				std::cout << "[" << y << " " << x << "]\n";
+				activ_cells[y][x]     = buffer_activ_cells[y][x];
+				std::cout << "0\n";
+				tmp_activ_cells[y][x] = buffer_tmp_activ_cells[y][x];
+				std::cout << "1\n";
+				cell_letters[y][x]    = buffer_cell_letters[y][x];
+				std::cout << "2\n";
+
+			}
+		}
+
+		std::cout << "resizing... 2\n";
+
+
+		buffer_activ_cells.clear();
+		buffer_tmp_activ_cells.clear();
+		buffer_cell_letters.clear();
+
+		std::cout << "resizing... 3\n";
+
 	}
 	else
 	{
-		std::cout << "cannot resize that...";
+		//std::cout << "cannot resize that...";
 	}
 }
