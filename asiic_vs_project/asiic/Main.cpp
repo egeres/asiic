@@ -14,8 +14,6 @@
 	
 	functionality / tools :
 		add ctrl+z
-		bucket selection
-		resize canvas dynamically
 		"select by color"
 		move selection with middle mouse ?
 		blinking cursor displace text sideways both left and right
@@ -32,13 +30,16 @@
 
 	bugs / improvements:
 		fix square selection lagging
+		fix weird displacement with the canvas drag and drop button
 		fix "out of matrix" tier issues with the "blinking cursor"
+		fix square selection bugging when leaving things selected
 		better text input, keys lag by some reason
 
 */
 
 
 /* IMPLENTED / FIXED
+	resize canvas dynamically
 	wand selection
 	fix issue with pencil selection crashing w/ just 1 click
 	backspace functionality implemented
@@ -278,11 +279,12 @@ int main()
 	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
 
 	vector<button*> list_of_buttons;
-	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt") );
-	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection") );
-	list_of_buttons.push_back( new button(10,220,290,50,"square selection") );
-	list_of_buttons.push_back( new button(10,290,290,50,"Wand selection")   ); // 3
-	list_of_buttons.push_back( &canvas_button ); // 4
+	list_of_buttons.push_back( new button(10,10, 290,50,"save to txt")         );
+	list_of_buttons.push_back( new button(10,150,290,50,"pencil selection")    );
+	list_of_buttons.push_back( new button(10,220,290,50,"square selection")    );
+	list_of_buttons.push_back( new button(10,290,290,50,"wand selection")      ); // 3
+	list_of_buttons.push_back( new button(10,360,290,50,"character selection") ); // 4
+	list_of_buttons.push_back( &canvas_button ); // 5
 
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
@@ -374,8 +376,9 @@ int main()
 				if (index == 1) { selecion_mode = 0; }
 				if (index == 2) { selecion_mode = 1; }
 				if (index == 3) { selecion_mode = 2; }
+				if (index == 4) { selecion_mode = 3; }
 
-				if (index == 4 && left_mouse_button_just_down)
+				if (index == 5 && left_mouse_button_just_down)
 				{
 					initial_mouse_position = mouse_position;
 					moving_canvas_button = true;
@@ -427,6 +430,14 @@ int main()
 				{
 					new_canvas.deselect_all();
 					new_canvas.select_bucket(cell_location_vector);
+				}
+
+				//wand selection mode
+				if (selecion_mode == 3 && left_mouse_button_just_down)
+				{
+					char selecion_character = new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x];
+					new_canvas.deselect_all();
+					new_canvas.equal_character_selection(selecion_character);
 				}
 			}
 		}

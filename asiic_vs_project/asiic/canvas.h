@@ -19,6 +19,7 @@ public:
 	sf::Vector2i first_position_selection();
 	void select_bucket(sf::Vector2i initial_point);
 	void resize(int, int);
+	void equal_character_selection(char);
 
 	int size_x, size_y;
 	std::vector<std::vector<bool> >  activ_cells;

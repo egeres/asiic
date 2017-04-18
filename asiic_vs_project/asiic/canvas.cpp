@@ -360,3 +360,18 @@ void canvas::resize(int input_x, int input_y)
 		//std::cout << "cannot resize that...";
 	}
 }
+
+//selects all the characters of the canvas given a certain input character
+void canvas::equal_character_selection(char input_character)
+{
+	for (int i = 0; i < cell_letters.size(); i++)
+	{
+		for (int j = 0; j < cell_letters[0].size(); j++)
+		{
+			if (cell_letters[i][j] == input_character) 
+			{
+				activ_cells[i][j] = true;
+			}
+		}
+	}
+}
