@@ -297,10 +297,16 @@ void canvas::resize(int input_x, int input_y)
 
 		//std::cout << "resized to : "<< activ_cells[0].size() << " : " << activ_cells.size() << "\n";
 
-		std::cout << "resizing... 0\n";
+		//std::cout << "resizing... 0\n";
 
-		std::cout << "[" << activ_cells.size() << " " << buffer_activ_cells.size() << "] ";
-		std::cout << "[" << activ_cells[0].size() << " " << buffer_activ_cells[0].size() << "] \n";
+		//std::cout << "activ_cells [" << activ_cells.size() << " " << activ_cells[0].size() << "] ";
+		//std::cout << "      buffer_activ_cells [" << buffer_activ_cells.size() << " " << buffer_activ_cells[0].size() << "] \n";
+
+		//std::cout << "activ_cells [" << activ_cells.size() << " " << activ_cells[0].size() << "] ";
+		//std::cout << "      buffer_activ_cells [" << buffer_activ_cells.size() << " " << buffer_activ_cells[0].size() << "] \n";
+
+		//std::cout << "cell_letters [" << cell_letters.size() << " " << cell_letters[0].size() << "] ";
+		//std::cout << "      buffer_cell_letters [" << buffer_cell_letters.size() << " " << buffer_cell_letters[0].size() << "] \n";
 
 		if (activ_cells.size() < buffer_activ_cells.size()) 
 		{ for_size_y = activ_cells.size(); }
@@ -310,34 +316,43 @@ void canvas::resize(int input_x, int input_y)
 		{ for_size_x = activ_cells[0].size(); }
 		else { for_size_x = buffer_cell_letters[0].size(); }
 
-		std::cout << " final x = " << for_size_x << " final y = " << for_size_y;
-
-		std::cout << "\nresizing... 1\n";
+		//std::cout << " final x = " << for_size_x << " final y = " << for_size_y;
+		//std::cout << "\nresizing... 1\n";
 
 		for (int y = 0; y < for_size_y; y++)
 		{
 			for (int x = 0; x < for_size_x; x++)
 			{
 
-				std::cout << "[" << y << " " << x << "]\n";
+				//std::cout << "[" << y << " " << x << "]\n";
+
+				//std::cout << "0\n";
+				//std::cout << activ_cells[y][x] << " \n";
+				//std::cout << buffer_activ_cells[y][x]  << " \n";
 				activ_cells[y][x]     = buffer_activ_cells[y][x];
-				std::cout << "0\n";
-				tmp_activ_cells[y][x] = buffer_tmp_activ_cells[y][x];
-				std::cout << "1\n";
+
+				//std::cout << "1\n";
+				//std::cout << tmp_activ_cells[y][x] << " \n";
+				//std::cout << buffer_tmp_activ_cells[y][x] << " \n";
+				//tmp_activ_cells[y][x] = buffer_tmp_activ_cells[y][x];
+
+				//std::cout << "2\n";
+				//std::cout << cell_letters[y][x] << " \n";
+				//std::cout << buffer_cell_letters[y][x] << " \n";
 				cell_letters[y][x]    = buffer_cell_letters[y][x];
-				std::cout << "2\n";
+
 
 			}
 		}
 
-		std::cout << "resizing... 2\n";
+		//std::cout << "resizing... 2\n";
 
 
 		buffer_activ_cells.clear();
 		buffer_tmp_activ_cells.clear();
 		buffer_cell_letters.clear();
 
-		std::cout << "resizing... 3\n";
+		//std::cout << "resizing... 3\n";
 
 	}
 	else
