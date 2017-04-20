@@ -1,4 +1,4 @@
-# ![](https://github.com/egeres/asiic/blob/master/asiic_resources/asiic_logo.png) asiic
+# ![](https://github.com/egeres/asiic/blob/master/asiic_resources/asiic_logo_small.png) asiic
 
 ### Description
 Asiic it's an open source text editor oriented to create ascii art. The idea is to have an efficient program which include selection tool as pencils, magic wands or other familiar tools usually found in software like Gimp or Photoshop. It can be used to develop games like http://candybox2.net/ or create those cool headers from the tipical installation instructions of a pirate game downloaded from a torrent.
