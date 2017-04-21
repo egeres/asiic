@@ -13,6 +13,7 @@
 	define button events properly
 	
 	functionality / tools :
+		square selection moving when out of boundaries
 		draw line ?
 		add ctrl+z
 		move selection with middle mouse ?
@@ -24,7 +25,6 @@
 		blinking cursor
 		invert colors ?
 		right click pie menu
-		show the "pixel" position
 
 	bugs / improvements:
 		fix square selection lagging
@@ -37,6 +37,7 @@
 
 
 /* IMPLENTED / FIXED
+	show the "pixel" position
 	text_over_toolbar
 	tool bar
 	button system
@@ -224,7 +225,7 @@ sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x
 }
 
 //
-void draw_selected_tool(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
+void draw_text_over_toobox_up(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
 {
 
 	text_obj.setString(input_string);
@@ -232,14 +233,37 @@ void draw_selected_tool(sf::RenderWindow& input_window, std::string input_string
 
 	text_obj.setPosition(
 		((int)input_window.getSize().x / 2) - bounds.width/2,
-		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 3
 	);
 
 	sf::RectangleShape rectangle(sf::Vector2f(bounds.width + 16, fnt.getLineSpacing(40)));
 	rectangle.setFillColor(sf::Color(14, 14, 14));
 	rectangle.setPosition(
 		((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
-		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 3
+	);
+
+	input_window.draw(rectangle);
+	input_window.draw(text_obj);
+}
+
+//
+void draw_text_over_toobox_bottom(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
+{
+
+	text_obj.setString(input_string);
+	sf::FloatRect bounds = text_obj.getLocalBounds();
+
+	text_obj.setPosition(
+		((int)input_window.getSize().x / 2) - bounds.width/2,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 126
+	);
+
+	sf::RectangleShape rectangle(sf::Vector2f(bounds.width + 16, fnt.getLineSpacing(40)));
+	rectangle.setFillColor(sf::Color(14, 14, 14));
+	rectangle.setPosition(
+		((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 126
 	);
 
 	input_window.draw(rectangle);
@@ -263,6 +287,7 @@ int main()
 	int cell_size_x      = 17;
 	int cell_size_y      = 40;
 	float zoom = 1.0;
+	std::string string_cell_upper_toolbox = "";
 
 	//tools variables
 	int  selection_mode   = 2;
@@ -725,12 +750,7 @@ int main()
 			//draw_buttons(   window, new_canvas, list_of_buttons, font);
 			//std::cout << "7.4\n";
 
-			if (main_toolbar.check_click((sf::Vector2i)mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)mouse_position) != "clicked the toolbar...")
-			{
-				std::string texti_pixel;
-				texti_pixel = main_toolbar.check_click((sf::Vector2i)mouse_position);
-				draw_selected_tool(window, texti_pixel, text_pixel, font_pixel);
-			}
+
 
 
 			window.draw(canvas_button_image.spr);
@@ -738,7 +758,29 @@ int main()
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
 			main_toolbar.render(window, (sf::Vector2i)mouse_position);
-			
+
+			if (!out_of_canvas) 
+			{ 
+				string_cell_upper_toolbox = "";
+				string_cell_upper_toolbox += "<";
+				string_cell_upper_toolbox += std::to_string(cell_location_vector.x);
+				string_cell_upper_toolbox += " ";
+				string_cell_upper_toolbox += std::to_string(cell_location_vector.y);
+				string_cell_upper_toolbox += ">";
+			}
+			else
+			{
+				string_cell_upper_toolbox = "< >";
+			}
+
+			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
+
+			if (main_toolbar.check_click((sf::Vector2i)mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)mouse_position) != "clicked the toolbar...")
+			{
+				std::string texti_pixel;
+				texti_pixel = main_toolbar.check_click((sf::Vector2i)mouse_position);
+				draw_text_over_toobox_bottom(window, texti_pixel, text_pixel, font_pixel);
+			}
 
 		//std::cout << "8\n";
 
