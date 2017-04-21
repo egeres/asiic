@@ -14,7 +14,6 @@
 	
 	functionality / tools :
 		add ctrl+z
-		"select by color"
 		move selection with middle mouse ?
 		blinking cursor displace text sideways both left and right
 		move selection with arrow keys
@@ -24,7 +23,6 @@
 		help window ?
 		blinking cursor
 		invert colors ?
-		icon for the project
 		right click pie menu
 		show the "pixel" position
 
@@ -39,6 +37,7 @@
 
 
 /* IMPLENTED / FIXED
+	icon for the project
 	resize canvas dynamically
 	wand selection
 	fix issue with pencil selection crashing w/ just 1 click
@@ -227,7 +226,7 @@ int main()
 	int initial_size_y = 900;
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor");
-	window.setVerticalSyncEnabled(false);
+	window.setVerticalSyncEnabled(true);
 	window.setView(view1);
 	int displacement_x = 350;
 	int displacement_y = 50;
@@ -271,6 +270,21 @@ int main()
 	text.setFont(font);
 	text.setCharacterSize(30);
 	text.setColor(sf::Color::White);
+
+	//textures
+	sf::Texture tex_icon_pencil_selection;
+	if (!tex_icon_pencil_selection.loadFromFile("icon_pencil_selection.png")) {}
+
+	//images & sprites
+	sf::Sprite spr_icon_pencil_selection;
+	spr_icon_pencil_selection.setTexture(tex_icon_pencil_selection);
+
+	//navigation bar
+	navigation_bar main_toolbar(sf::Vector2i(200, 200), sf::Color::Red, 5, 5, "centered", "horizontal");
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
+	main_toolbar.update();
 
 	//button system below
 	int  canvas_button_pos_x = 0;
@@ -587,6 +601,8 @@ int main()
 			//std::cout << "7.3\n";
 			draw_buttons(   window, new_canvas, list_of_buttons, font);
 			//std::cout << "7.4\n";
+
+			main_toolbar.render(window);
 
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
