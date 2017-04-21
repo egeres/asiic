@@ -273,17 +273,41 @@ int main()
 
 	//textures
 	sf::Texture tex_icon_pencil_selection;
+	sf::Texture tex_icon_equal_character_selection;
+	sf::Texture tex_icon_resize;
+	sf::Texture tex_icon_save;
+	sf::Texture tex_icon_square_selection;
+	sf::Texture tex_icon_wand_selection;
+
 	if (!tex_icon_pencil_selection.loadFromFile("icon_pencil_selection.png")) {}
+	if (!tex_icon_equal_character_selection.loadFromFile("icon_equal_character_selection.png")) {}
+	if (!tex_icon_resize.loadFromFile("icon_resize.png")) {}
+	if (!tex_icon_save.loadFromFile("icon_save.png")) {}
+	if (!tex_icon_square_selection.loadFromFile("icon_square_selection.png")) {}
+	if (!tex_icon_wand_selection.loadFromFile("icon_wand_selection.png")) {}
 
 	//images & sprites
 	sf::Sprite spr_icon_pencil_selection;
+	sf::Sprite spr_icon_equal_character_selection;
+	sf::Sprite spr_icon_resize;
+	sf::Sprite spr_icon_save;
+	sf::Sprite spr_icon_square_selection;
+	sf::Sprite spr_icon_wand_selection;
+
 	spr_icon_pencil_selection.setTexture(tex_icon_pencil_selection);
+	spr_icon_equal_character_selection.setTexture(tex_icon_equal_character_selection);
+	spr_icon_resize.setTexture(tex_icon_resize);
+	spr_icon_save.setTexture(tex_icon_save);
+	spr_icon_square_selection.setTexture(tex_icon_square_selection);
+	spr_icon_wand_selection.setTexture(tex_icon_wand_selection);
 
 	//navigation bar
-	navigation_bar main_toolbar(sf::Vector2i(200, 200), sf::Color::Red, 5, 5, "centered", "horizontal");
-	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
-	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
-	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode") );
+	navigation_bar main_toolbar(sf::Vector2i(500, 200), sf::Color::Red, 5, 5, "centered", "horizontal");
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,"pencil_mode")             );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,"square_mode")             );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,"wand_mode")                 );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection,"similarity_mode"));
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,"save")                                );
 	main_toolbar.update();
 
 	//button system below
@@ -371,6 +395,21 @@ int main()
 		}
 
 		//std::cout << "3\n";
+
+
+
+		//button_handling....
+		if (left_mouse_button_just_down)
+		{
+			string index = main_toolbar.check_click((sf::Vector2i)mouse_position);
+
+			cout << "\nreturneado esto : " << index;
+
+			//if (!index.empty())
+			//{
+			//	cout << " returneado esto : " << index;
+			//}
+		}
 
 		//button handling
 		if (left_mouse_button_is_down) // && !prev_left_mouse_button_is_down)

@@ -29,6 +29,19 @@ button_image::button_image(sf::Vector2i input_pos, sf::Sprite input_sprite, std:
 	//wh  = input_sprite.getGlobalBounds();
 	wh  = sf::Vector2i(input_sprite.getGlobalBounds().width, input_sprite.getGlobalBounds().height);
 	spr = input_sprite;
+	event_name = event_clicked;
+}
+
+bool button_image::is_inside(sf::Vector2i input_vector)
+{
+	if (input_vector.x > pos.x && input_vector.x < pos.x + wh.x)
+	{
+		if (input_vector.y > pos.y && input_vector.y < pos.y + wh.y)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 navigation_bar::navigation_bar(sf::Vector2i input_pos, sf::Color input_color, int input_padding, int input_spacing, std::string input_alignment, std::string input_disposicion)
@@ -73,6 +86,7 @@ void navigation_bar::update()
 		{
 			std::cout << " pos_x = " << pos_x;
 			list_of_buttons[i]->spr.setPosition(sf::Vector2f(pos_x, pos_y));
+			list_of_buttons[i]->pos = sf::Vector2i(pos_x, pos_y);
 			pos_x += list_of_buttons[i]->wh.x;
 			pos_x += spacing;
 		}
@@ -80,6 +94,7 @@ void navigation_bar::update()
 
 	background_rectangle.setPosition(pos.x - total_size_x / 2,pos.y);
 	background_rectangle.setSize(sf::Vector2f(total_size_x, 60));
+	wh = sf::Vector2i(total_size_x,60);
 
 	
 }
@@ -92,4 +107,47 @@ void navigation_bar::render(sf::RenderWindow& input_window)
 	{
 		input_window.draw(list_of_buttons[i]->spr);
 	} 
+}
+
+bool navigation_bar::is_inside(sf::Vector2i input_vector)
+{
+
+	if (alignment == "left") {
+
+	}
+
+	if (alignment == "centered")
+	{
+		input_vector.x += wh.x/2;
+	}
+
+	if (input_vector.x > pos.x && input_vector.x < pos.x + wh.x)
+	{
+		if (input_vector.y > pos.y && input_vector.y < pos.y + wh.y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string navigation_bar::check_click(sf::Vector2i input_vector)
+{
+
+	std::string return_string;
+
+	if (is_inside(input_vector))
+	{
+		return_string = "clicked the toolbar...";
+		
+		for (int i = 0; i < list_of_buttons.size(); i++)
+		{
+			if (list_of_buttons[i]->is_inside(input_vector))
+			{	
+				return_string =  list_of_buttons[i]->event_name;
+			}
+		}
+	}
+
+	return return_string;
 }

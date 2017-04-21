@@ -20,9 +20,11 @@ class button_image
 {
 public:
 	button_image(sf::Vector2i, sf::Sprite, std::string);
+	bool is_inside(sf::Vector2i);
 	sf::Vector2i pos;
 	sf::Vector2i wh;
 	sf::Sprite   spr;
+	std::string event_name;
 };
 
 class navigation_bar
@@ -31,9 +33,12 @@ public:
 	navigation_bar(sf::Vector2i, sf::Color, int, int, std::string, std::string);
 	void render(sf::RenderWindow&);
 	void update();
+	bool is_inside(sf::Vector2i);
+	std::string navigation_bar::check_click(sf::Vector2i);
 
 	sf::RectangleShape background_rectangle;
 	sf::Vector2i pos;
+	sf::Vector2i wh;
 	std::vector<button_image*> list_of_buttons;
 	std::string alignment;  //vertical or horizontal
 	std::string disposicion;// centered, left, right
