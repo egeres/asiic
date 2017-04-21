@@ -317,6 +317,7 @@ int main()
 	sf::Texture tex_icon_wand_selection;
 	sf::Texture tex_icon_folder;
 	sf::Texture tex_icon_options;
+	sf::Texture tex_icon_resize_b;
 
 	if (!tex_icon_pencil_selection.loadFromFile("icon_pencil_selection.png")) {}
 	if (!tex_icon_equal_character_selection.loadFromFile("icon_equal_character_selection.png")) {}
@@ -326,6 +327,7 @@ int main()
 	if (!tex_icon_wand_selection.loadFromFile("icon_wand_selection.png")) {}
 	if (!tex_icon_folder.loadFromFile("icon_folder.png")) {}
 	if (!tex_icon_options.loadFromFile("icon_options.png")) {}
+	if (!tex_icon_resize_b.loadFromFile("icon_resize_b.png")) {}
 
 	//images & sprites
 	sf::Sprite spr_icon_pencil_selection;
@@ -336,6 +338,7 @@ int main()
 	sf::Sprite spr_icon_wand_selection;
 	sf::Sprite spr_icon_folder;
 	sf::Sprite spr_icon_options;
+	sf::Sprite spr_icon_resize_b;
 
 	spr_icon_pencil_selection.setTexture(tex_icon_pencil_selection);
 	spr_icon_equal_character_selection.setTexture(tex_icon_equal_character_selection);
@@ -345,6 +348,7 @@ int main()
 	spr_icon_wand_selection.setTexture(tex_icon_wand_selection);
 	spr_icon_folder.setTexture(tex_icon_folder);
 	spr_icon_options.setTexture(tex_icon_options);
+	spr_icon_resize_b.setTexture(tex_icon_resize_b);
 
 	//sound (yeah, there's sound in this software...)
 	sf::SoundBuffer buffer_minimal_click;
@@ -370,6 +374,8 @@ int main()
 	int  canvas_button_pos_y = 0;
 	bool moving_canvas_button = false;
 	button canvas_button = button(canvas_button_pos_x, canvas_button_pos_y, 40, 40, "");
+
+	button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
 
 	/*
 	vector<button*> list_of_buttons;
@@ -409,29 +415,41 @@ int main()
 			left_mouse_button_just_up = true; //std::cout << "up";
 		}
 
-		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 10;
-		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 10;
+		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 6;
+		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 6;
 
 		//std::cout << "1\n";
 
 		//we move the corner button
 		if (moving_canvas_button)
 		{
-			canvas_button.x     += (- prev_mouse_position + mouse_position).x;
-			//canvas_button_pos_x += (- prev_mouse_position + mouse_position).x;
-			canvas_button.y     += (- prev_mouse_position + mouse_position).y;
-			//canvas_button_pos_y += (- prev_mouse_position + mouse_position).y;
+			//canvas_button.x     += (- prev_mouse_position + mouse_position).x;
+			canvas_button_pos_x += (- prev_mouse_position + mouse_position).x;
+			canvas_button_image.pos.x += (- prev_mouse_position + mouse_position).x;
+
+			//canvas_button.y     += (- prev_mouse_position + mouse_position).y;
+			canvas_button_pos_y += (- prev_mouse_position + mouse_position).y;
+			canvas_button_image.pos.y += (- prev_mouse_position + mouse_position).y;
+
+			canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
 
 			//increment_decrement_vector = cell_location((sf::Vector2i)mouse_position - displacement_v - (sf::Vector2i)initial_mouse_position, new_canvas, cell_size_x, cell_size_y);
 			increment_decrement_vector =                               cell_location((sf::Vector2i)mouse_position         - displacement_v , new_canvas, cell_size_x, cell_size_y);
 			increment_decrement_vector = increment_decrement_vector - (cell_location((sf::Vector2i)initial_mouse_position - displacement_v , new_canvas, cell_size_x, cell_size_y));
 
-			cout << increment_decrement_vector.x << " O " << increment_decrement_vector.y << "\n";
+			//cout << increment_decrement_vector.x << " O " << increment_decrement_vector.y << "\n";
 		}
 		else
 		{
-			canvas_button.x     = canvas_button_pos_x;
-			canvas_button.y     = canvas_button_pos_y;
+			//canvas_button.x     = canvas_button_pos_x;
+			canvas_button_image.pos.x = canvas_button_pos_x;
+
+			//canvas_button.y     = canvas_button_pos_y;
+			canvas_button_image.pos.y = canvas_button_pos_y;
+
+			//canvas_button_image.spr.setPosition(canvas_button_pos_x, canvas_button_pos_y);
+			canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
+
 		}
 
 		//std::cout << "2\n";
@@ -461,8 +479,6 @@ int main()
 
 			string index = main_toolbar.check_click((sf::Vector2i)mouse_position);
 
-			cout << "\nreturneado esto : " << index;
-
 			if (!index.empty())
 			{
 				if (index == "pencil_mode")     { selection_mode = 0; }
@@ -471,6 +487,16 @@ int main()
 				if (index == "similarity_mode") { selection_mode = 3; }
 
 				if (index == "save")            { new_canvas.save_to("lastest_canvas_save.txt"); }
+			}
+
+
+			//string index = canvas_button_image.is_inside((sf::Vector2i)mouse_position);
+
+			else if (canvas_button_image.is_inside((sf::Vector2i)mouse_position) && left_mouse_button_just_down)
+			{
+				initial_mouse_position = mouse_position;
+				moving_canvas_button = true;
+				sound_minimal_click.play();
 			}
 
 			//std::cout << "3.0.0\n";
@@ -706,9 +732,13 @@ int main()
 				draw_selected_tool(window, texti_pixel, text_pixel, font_pixel);
 			}
 
-			main_toolbar.render(window, (sf::Vector2i)mouse_position);
+
+			window.draw(canvas_button_image.spr);
 
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+			main_toolbar.render(window, (sf::Vector2i)mouse_position);
+			
 
 		//std::cout << "8\n";
 

@@ -31,6 +31,7 @@ button_image::button_image(sf::Vector2i input_pos, sf::Sprite input_sprite, std:
 	wh  = sf::Vector2i(input_sprite.getGlobalBounds().width, input_sprite.getGlobalBounds().height);
 	spr = input_sprite;
 	event_name = event_clicked;
+	spr.setPosition(pos.x, pos.y);
 }
 
 bool button_image::is_inside(sf::Vector2i input_vector)
@@ -148,7 +149,7 @@ void navigation_bar::render(sf::RenderWindow& input_window, sf::Vector2i input_v
 	{
 
 		overlayed_button = "";
-		
+
 		for (int i = 0; i < list_of_buttons.size(); i++)
 		{
 			list_of_buttons[i]->spr.setColor(sf::Color(100, 100, 100));
