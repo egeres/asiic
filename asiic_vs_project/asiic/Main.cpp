@@ -10,17 +10,16 @@
 
 	add debug mode
 	find cool use for the enter key
-	button system
 	define button events properly
 	
 	functionality / tools :
+		draw line ?
 		add ctrl+z
 		move selection with middle mouse ?
 		blinking cursor displace text sideways both left and right
 		move selection with arrow keys
 
 	menu / interface :
-		tool bar ?
 		help window ?
 		blinking cursor
 		invert colors ?
@@ -38,6 +37,9 @@
 
 
 /* IMPLENTED / FIXED
+	text_over_toolbar
+	tool bar
+	button system
 	icon for the project
 	resize canvas dynamically
 	wand selection
@@ -221,6 +223,29 @@ sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x
 	return to_return;
 }
 
+//
+void draw_selected_tool(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
+{
+
+	text_obj.setString(input_string);
+	sf::FloatRect bounds = text_obj.getLocalBounds();
+
+	text_obj.setPosition(
+		((int)input_window.getSize().x / 2) - bounds.width/2,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65
+	);
+
+	sf::RectangleShape rectangle(sf::Vector2f(bounds.width + 16, fnt.getLineSpacing(40)));
+	rectangle.setFillColor(sf::Color(14, 14, 14));
+	rectangle.setPosition(
+		((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50
+	);
+
+	input_window.draw(rectangle);
+	input_window.draw(text_obj);
+}
+
 //main function
 int main()
 {
@@ -269,12 +294,19 @@ int main()
 	sf::Vector2i increment_decrement_vector;
 
 	//text item for the GUI system
-	sf::Font font;
-	if (!font.loadFromFile("consolas.ttf")) { /* error... */ }
-	sf::Text text;
-	text.setFont(font);
-	text.setCharacterSize(30);
-	text.setColor(sf::Color::White);
+	sf::Font font_consolas;
+	if (!font_consolas.loadFromFile("consolas.ttf")) { /* error... */ }
+	sf::Text text_consolas;
+	text_consolas.setFont(font_consolas);
+	text_consolas.setCharacterSize(30);
+	text_consolas.setColor(sf::Color::White);
+
+	sf::Font font_pixel;
+	if (!font_pixel.loadFromFile("pixel.ttf")) { /* error... */ }
+	sf::Text text_pixel;
+	text_pixel.setFont(font_pixel);
+	text_pixel.setCharacterSize(40);
+	text_pixel.setColor(sf::Color::White);
 
 	//textures
 	sf::Texture tex_icon_pencil_selection;
@@ -283,6 +315,8 @@ int main()
 	sf::Texture tex_icon_save;
 	sf::Texture tex_icon_square_selection;
 	sf::Texture tex_icon_wand_selection;
+	sf::Texture tex_icon_folder;
+	sf::Texture tex_icon_options;
 
 	if (!tex_icon_pencil_selection.loadFromFile("icon_pencil_selection.png")) {}
 	if (!tex_icon_equal_character_selection.loadFromFile("icon_equal_character_selection.png")) {}
@@ -290,6 +324,8 @@ int main()
 	if (!tex_icon_save.loadFromFile("icon_save.png")) {}
 	if (!tex_icon_square_selection.loadFromFile("icon_square_selection.png")) {}
 	if (!tex_icon_wand_selection.loadFromFile("icon_wand_selection.png")) {}
+	if (!tex_icon_folder.loadFromFile("icon_folder.png")) {}
+	if (!tex_icon_options.loadFromFile("icon_options.png")) {}
 
 	//images & sprites
 	sf::Sprite spr_icon_pencil_selection;
@@ -298,6 +334,8 @@ int main()
 	sf::Sprite spr_icon_save;
 	sf::Sprite spr_icon_square_selection;
 	sf::Sprite spr_icon_wand_selection;
+	sf::Sprite spr_icon_folder;
+	sf::Sprite spr_icon_options;
 
 	spr_icon_pencil_selection.setTexture(tex_icon_pencil_selection);
 	spr_icon_equal_character_selection.setTexture(tex_icon_equal_character_selection);
@@ -305,6 +343,8 @@ int main()
 	spr_icon_save.setTexture(tex_icon_save);
 	spr_icon_square_selection.setTexture(tex_icon_square_selection);
 	spr_icon_wand_selection.setTexture(tex_icon_wand_selection);
+	spr_icon_folder.setTexture(tex_icon_folder);
+	spr_icon_options.setTexture(tex_icon_options);
 
 	//sound (yeah, there's sound in this software...)
 	sf::SoundBuffer buffer_minimal_click;
@@ -315,12 +355,14 @@ int main()
 	sound_minimal_click.setVolume(15);
 
 	//navigation bar
-	navigation_bar main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(10, 10, 10), 5, 5, "centered", "horizontal", sound_minimal_click);
+	navigation_bar main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,         "pencil_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,         "square_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,           "wand_mode")      );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection,"similarity_mode"));
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,                     "save")           );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                   "folders")        );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_options,                  "options")        );
 	main_toolbar.update();
 
 	//button system below
@@ -646,16 +688,23 @@ int main()
 
 		//the drawing part of the loop
 		window.clear();
-		window.draw(text);
+		window.draw(text_consolas);
 			//std::cout << "7.0\n";
 			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.2\n";
-			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text);
+			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
 			//std::cout << "7.3\n";
 			//draw_buttons(   window, new_canvas, list_of_buttons, font);
 			//std::cout << "7.4\n";
+
+			if (main_toolbar.check_click((sf::Vector2i)mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)mouse_position) != "clicked the toolbar...")
+			{
+				std::string texti_pixel;
+				texti_pixel = main_toolbar.check_click((sf::Vector2i)mouse_position);
+				draw_selected_tool(window, texti_pixel, text_pixel, font_pixel);
+			}
 
 			main_toolbar.render(window, (sf::Vector2i)mouse_position);
 
