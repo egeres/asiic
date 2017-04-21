@@ -279,7 +279,7 @@ int main()
 	int initial_size_x = 1500;
 	int initial_size_y = 900;
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor");
+	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor v1.1.0");
 	window.setVerticalSyncEnabled(true);
 	window.setView(view1);
 	int displacement_x = 350;

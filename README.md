@@ -5,7 +5,7 @@ Asiic it's an open source text editor oriented to create ascii art. The idea is 
 
 Screenshot of asiic :
 
-![](https://github.com/egeres/asiic/blob/master/asiic_resources/asiic_screenshot.png)
+![](https://github.com/egeres/asiic/blob/master/asiic_resources/screenshot_asiic_1.1.0.png)
 
 Download here : https://github.com/egeres/asiic/releases
 
