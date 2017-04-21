@@ -2,6 +2,7 @@
 
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 class button
 {
@@ -30,12 +31,13 @@ public:
 class navigation_bar
 {
 public:
-	navigation_bar(sf::Vector2i, sf::Color, int, int, std::string, std::string);
-	void render(sf::RenderWindow&);
+	navigation_bar(sf::Vector2i, sf::Color, int, int, std::string, std::string, sf::Sound);
+	void render(sf::RenderWindow&, sf::Vector2i);
 	void update();
 	bool is_inside(sf::Vector2i);
 	std::string navigation_bar::check_click(sf::Vector2i);
 
+	sf::Sound overlay_sound;
 	sf::RectangleShape background_rectangle;
 	sf::Vector2i pos;
 	sf::Vector2i wh;
@@ -44,5 +46,6 @@ public:
 	std::string disposicion;// centered, left, right
 	int padding;
 	int spacing;
+	std::string overlayed_button;
 };
 

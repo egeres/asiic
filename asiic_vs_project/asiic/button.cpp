@@ -1,3 +1,4 @@
+#include <SFML/Audio.hpp>
 #include "button.h"
 #include <string>
 #include <iostream>
@@ -44,7 +45,7 @@ bool button_image::is_inside(sf::Vector2i input_vector)
 	return false;
 }
 
-navigation_bar::navigation_bar(sf::Vector2i input_pos, sf::Color input_color, int input_padding, int input_spacing, std::string input_alignment, std::string input_disposicion)
+navigation_bar::navigation_bar(sf::Vector2i input_pos, sf::Color input_color, int input_padding, int input_spacing, std::string input_alignment, std::string input_disposicion, sf::Sound input_sound)
 {
 	pos = input_pos;
 	padding = input_padding;
@@ -58,6 +59,8 @@ navigation_bar::navigation_bar(sf::Vector2i input_pos, sf::Color input_color, in
 
 	alignment   = input_alignment;
 	disposicion = input_disposicion;
+
+	overlay_sound = input_sound;
 }
 
 void navigation_bar::update()
@@ -99,14 +102,62 @@ void navigation_bar::update()
 	
 }
 
-void navigation_bar::render(sf::RenderWindow& input_window)
+void navigation_bar::render(sf::RenderWindow& input_window, sf::Vector2i input_vector)
 {
+
+	/*
 	input_window.draw(background_rectangle);
 
 	for (int i = 0; i < list_of_buttons.size(); i++)
 	{
 		input_window.draw(list_of_buttons[i]->spr);
-	} 
+	}
+	*/
+
+	input_window.draw(background_rectangle);
+
+	if (is_inside(input_vector))
+	{
+		bool in_any_of_them = false;
+
+		for (int i = 0; i < list_of_buttons.size(); i++)
+		{
+			if (list_of_buttons[i]->is_inside(input_vector))
+			{	
+				list_of_buttons[i]->spr.setColor(sf::Color(120, 120, 120));
+				input_window.draw(list_of_buttons[i]->spr);
+
+				if (overlayed_button != list_of_buttons[i]->event_name) 
+				{
+					//std::cout << "blah |" << overlayed_button << "|" << list_of_buttons[i]->event_name << "\n";
+					overlay_sound.play();
+				}
+				overlayed_button = list_of_buttons[i]->event_name;
+				in_any_of_them = true;
+			}
+			else
+			{
+				list_of_buttons[i]->spr.setColor(sf::Color(100, 100, 100));
+				input_window.draw(list_of_buttons[i]->spr);
+			}
+		}
+
+		if (in_any_of_them == false) { overlayed_button = ""; }
+	}
+	else
+	{
+
+		overlayed_button = "";
+		
+		for (int i = 0; i < list_of_buttons.size(); i++)
+		{
+			list_of_buttons[i]->spr.setColor(sf::Color(100, 100, 100));
+			input_window.draw(list_of_buttons[i]->spr);
+		}
+	}
+
+
+
 }
 
 bool navigation_bar::is_inside(sf::Vector2i input_vector)
