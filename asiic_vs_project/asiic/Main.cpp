@@ -4,15 +4,67 @@
 #include "button.h"
 #include <iostream>	
 #include <string> 
+#include <windows.h>
 
 
+void select_file(canvas& input_canvas)
+{
+	char filename[MAX_PATH];
+
+	OPENFILENAME ofn;
+	ZeroMemory(&filename, sizeof(filename));
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+	ofn.lpstrFilter = "Text Files\0*.txt\0Any File\0*.*\0";
+	ofn.lpstrFile = filename;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = "Select a File, yo!";
+	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+	if (GetOpenFileNameA(&ofn))
+	{
+		std::cout << "Opening file... \"" << filename << "\"\n";
+		input_canvas.load_text_file(filename);
+	}
+	else
+	{
+		// All this stuff below is to tell you exactly how you messed up above. 
+		// Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE: std::cout << "CDERR_DIALOGFAILURE\n";   break;
+		case CDERR_FINDRESFAILURE: std::cout << "CDERR_FINDRESFAILURE\n";  break;
+		case CDERR_INITIALIZATION: std::cout << "CDERR_INITIALIZATION\n";  break;
+		case CDERR_LOADRESFAILURE: std::cout << "CDERR_LOADRESFAILURE\n";  break;
+		case CDERR_LOADSTRFAILURE: std::cout << "CDERR_LOADSTRFAILURE\n";  break;
+		case CDERR_LOCKRESFAILURE: std::cout << "CDERR_LOCKRESFAILURE\n";  break;
+		case CDERR_MEMALLOCFAILURE: std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
+		case CDERR_MEMLOCKFAILURE: std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
+		case CDERR_NOHINSTANCE: std::cout << "CDERR_NOHINSTANCE\n";     break;
+		case CDERR_NOHOOK: std::cout << "CDERR_NOHOOK\n";          break;
+		case CDERR_NOTEMPLATE: std::cout << "CDERR_NOTEMPLATE\n";      break;
+		case CDERR_STRUCTSIZE: std::cout << "CDERR_STRUCTSIZE\n";      break;
+		case FNERR_BUFFERTOOSMALL: std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
+		case FNERR_INVALIDFILENAME: std::cout << "FNERR_INVALIDFILENAME\n"; break;
+		case FNERR_SUBCLASSFAILURE: std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
+		default: std::cout << "You cancelled.\n";
+		}
+	}
+}
 /*  TO DO
+
+	optimize the cpu usage... maybe is an issue with the joystick ?
+	clean the code of the 1.1.0
 
 	add debug mode
 	find cool use for the enter key
 	define button events properly
 	
+	make center_canvas_in_window() great again, lol
+
 	functionality / tools :
+		shorcuts
 		square selection moving when out of boundaries
 		draw line ?
 		add ctrl+z
@@ -21,10 +73,14 @@
 		move selection with arrow keys
 
 	menu / interface :
+		GUI object class
+		spacer class
 		help window ?
 		blinking cursor
 		invert colors ?
-		right click pie menu
+		right click pie menu ?
+		options menu
+		startup dialog
 
 	bugs / improvements:
 		fix square selection lagging
@@ -37,6 +93,7 @@
 
 
 /* IMPLENTED / FIXED
+	open file menu / load file
 	show the "pixel" position
 	text_over_toolbar
 	tool bar
@@ -320,14 +377,14 @@ int main()
 
 	//text item for the GUI system
 	sf::Font font_consolas;
-	if (!font_consolas.loadFromFile("consolas.ttf")) { /* error... */ }
+	if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
 	sf::Text text_consolas;
 	text_consolas.setFont(font_consolas);
 	text_consolas.setCharacterSize(30);
 	text_consolas.setColor(sf::Color::White);
 
 	sf::Font font_pixel;
-	if (!font_pixel.loadFromFile("pixel.ttf")) { /* error... */ }
+	if (!font_pixel.loadFromFile("assets/pixel.ttf")) { /* error... */ }
 	sf::Text text_pixel;
 	text_pixel.setFont(font_pixel);
 	text_pixel.setCharacterSize(40);
@@ -344,15 +401,15 @@ int main()
 	sf::Texture tex_icon_options;
 	sf::Texture tex_icon_resize_b;
 
-	if (!tex_icon_pencil_selection.loadFromFile("icon_pencil_selection.png")) {}
-	if (!tex_icon_equal_character_selection.loadFromFile("icon_equal_character_selection.png")) {}
-	if (!tex_icon_resize.loadFromFile("icon_resize.png")) {}
-	if (!tex_icon_save.loadFromFile("icon_save.png")) {}
-	if (!tex_icon_square_selection.loadFromFile("icon_square_selection.png")) {}
-	if (!tex_icon_wand_selection.loadFromFile("icon_wand_selection.png")) {}
-	if (!tex_icon_folder.loadFromFile("icon_folder.png")) {}
-	if (!tex_icon_options.loadFromFile("icon_options.png")) {}
-	if (!tex_icon_resize_b.loadFromFile("icon_resize_b.png")) {}
+	if (!tex_icon_pencil_selection.loadFromFile("assets/icon_pencil_selection.png")) {}
+	if (!tex_icon_equal_character_selection.loadFromFile("assets/icon_equal_character_selection.png")) {}
+	if (!tex_icon_resize.loadFromFile("assets/icon_resize.png")) {}
+	if (!tex_icon_save.loadFromFile("assets/icon_save.png")) {}
+	if (!tex_icon_square_selection.loadFromFile("assets/icon_square_selection.png")) {}
+	if (!tex_icon_wand_selection.loadFromFile("assets/icon_wand_selection.png")) {}
+	if (!tex_icon_folder.loadFromFile("assets/icon_folder.png")) {}
+	if (!tex_icon_options.loadFromFile("assets/icon_options.png")) {}
+	if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
 
 	//images & sprites
 	sf::Sprite spr_icon_pencil_selection;
@@ -377,7 +434,7 @@ int main()
 
 	//sound (yeah, there's sound in this software...)
 	sf::SoundBuffer buffer_minimal_click;
-	if(!buffer_minimal_click.loadFromFile("minimal_clickb.wav")) {}
+	if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
 
 	sf::Sound sound_minimal_click; 
 	sound_minimal_click.setBuffer(buffer_minimal_click);
@@ -390,7 +447,7 @@ int main()
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,           "wand_mode")      );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection,"similarity_mode"));
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,                     "save")           );
-	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                   "folders")        );
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                   "open_file")      );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_options,                  "options")        );
 	main_toolbar.update();
 
@@ -512,6 +569,8 @@ int main()
 				if (index == "similarity_mode") { selection_mode = 3; }
 
 				if (index == "save")            { new_canvas.save_to("lastest_canvas_save.txt"); }
+
+				if (index == "open_file")       { select_file(new_canvas); }
 			}
 
 

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <string.h>
 
 //canvas constructor
 canvas::canvas(int input_size_x, int input_size_y)
@@ -76,6 +77,59 @@ void canvas::save_to(std::string file_name)
 	out.close();
 
 	return;
+}
+
+void canvas::center_canvas_in_window() {}
+void canvas::load_text_file(std::string input_file_name)
+{
+
+	std::cout << "\ninputting... " << input_file_name << "\n";
+	std::ifstream file(input_file_name);
+	std::string str;
+
+	int canvas_size_x = 0;
+	int canvas_size_y = 0;
+
+	//the first step consists on measuing 
+	while (std::getline(file, str))
+	{	
+		if (str.size() > canvas_size_x) { canvas_size_x = str.size(); }
+	    canvas_size_y += 1;
+	}
+
+	//std::cout << "|" << canvas_size_x << "|" << canvas_size_y << "|";
+	
+	deselect_all();
+	//int to_resize_x = size_x - canvas_size_x
+	resize(canvas_size_x - size_x, canvas_size_y - size_y);
+	file.clear();
+	file.seekg(0, file.beg);
+
+	int counter_line = 0;
+	//the second step is to assign
+	while (std::getline(file, str))
+	{
+		//std::cout << "brilliantly executed \n";
+		//we print this line's characters
+		for (int i = 0; i < str.size(); i++)
+		{
+			if (i < str.size())
+			{ 
+				std::cout << str[i];
+
+				cell_letters[counter_line][i] = (char)str[i];
+				//cell_letters[counter_line][i] = 'p';
+			}
+		}
+
+		//we print the rest of blank spaces
+		for (int i = str.size(); i < canvas_size_x; i++)
+		{
+			cell_letters[counter_line][i] = ' ';
+		}
+
+	    counter_line+=1;
+	}
 }
 
 //sets a preview to the square selection

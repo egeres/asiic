@@ -11,6 +11,9 @@ public:
 	void deselect_all();
 	void set_char_selected(int);
 	void save_to(std::string);
+	void load_text_file(std::string);
+	void center_canvas_in_window();
+	
 	void set_square_selection_temporal(sf::Vector2i, sf::Vector2i, bool);
 	void overlay_short_matrix(std::vector<std::vector<short> >);
 	void clear_short_matrix();
