@@ -476,3 +476,27 @@ std::string navigation_bar_txt::check_click(sf::Vector2i input_vector)
 
 	return return_string;
 }
+
+
+int navigation_bar_txt::index_by_click(sf::Vector2i input_vector)
+{
+
+	//std::cout << "checking click txt_bar... \n";
+
+	int return_string = -1;
+
+	if (is_inside(input_vector))
+	{
+		//return_string = "clicked the toolbar...";
+		
+		for (int i = 0; i < list_of_buttons.size(); i++)
+		{
+			if (list_of_buttons[i]->is_inside(input_vector) && list_of_buttons[i]->event_name != "")
+			{	
+				return_string = i;
+			}
+		}
+	}
+
+	return return_string;
+}

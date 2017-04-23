@@ -55,26 +55,29 @@ void select_file(canvas& input_canvas)
 /*  TO DO
 
 	optimize the cpu usage... maybe is an issue with the joystick ?
+
 	clean the code of the 1.1.0
+	clean the code of the 1.2.0
 
 	add debug mode
 	find cool use for the enter key
-	define button events properly
 	
 	make center_canvas_in_window() great again, lol
 
 	functionality / tools :
-		shorcuts
+		upper tabs select different canvas's
+		canvas are placed in a dynamic vector now
+		shorcuts :P
 		square selection moving when out of boundaries
-		draw line ?
+		select lines ?
 		add ctrl+z
 		move selection with middle mouse ?
-		blinking cursor displace text sideways both left and right
+		blinking cursor displace text sideways both left and right ?
 		move selection with arrow keys
+		move selection with ctrl+middlemouse
 
 	menu / interface :
-		GUI object class
-		spacer class
+		display square selection size
 		help window ?
 		blinking cursor
 		invert colors ?
@@ -83,6 +86,8 @@ void select_file(canvas& input_canvas)
 		startup dialog
 
 	bugs / improvements:
+		fix canvas resizing causing issues with te interface
+		fix camera zoom
 		fix square selection lagging
 		fix weird displacement with the canvas drag and drop button
 		fix "out of matrix" tier issues with the "blinking cursor"
@@ -93,6 +98,9 @@ void select_file(canvas& input_canvas)
 
 
 /* IMPLENTED / FIXED
+	upper tabs for multiple canvas selecion
+	spacer class
+	GUI object class
 	open file menu / load file
 	show the "pixel" position
 	text_over_toolbar
@@ -356,7 +364,18 @@ int main()
 	sf::Vector2i square_selection_end_point;
 
 	//the canvas itself
-	canvas new_canvas = canvas(40, 15);
+	vector<canvas*> canvases;
+
+	canvases.push_back(new canvas(40, 15));
+	canvases.push_back(new canvas(80, 15));
+	canvases.push_back(new canvas(90, 15));
+	canvases.push_back(new canvas(120, 15));
+
+	//canvas new_canvas = canvas(40, 15);
+	int active_canvas_index = 0;
+
+	canvas new_canvas = *canvases[active_canvas_index];
+
 	//new_canvas.activ_cells[3][4] = true;
 	//new_canvas.cell_letters[3][4] = 'e';
 	//new_canvas.cell_letters[3][5] = 'e';
@@ -448,12 +467,12 @@ int main()
 	sound_minimal_click.setVolume(15);
 
 	//upper navigation bar
-	navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.05), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
+	navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
 	//upper_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,         "pencil_mode")    );
-	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5) );
-	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5));
-	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5));
-	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_2.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5) );
+	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_button_1", font_pixel, sf::Color(25, 25, 25), 5) );
+	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pressed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "pressed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_2.txt", "pressed_button_1", font_pixel, sf::Color(25, 25, 25), 5) );
 
 	upper_toolbar.update();
 
@@ -582,6 +601,7 @@ int main()
 			//std::cout << "3.0\n";
 
 			string index = main_toolbar.check_click((sf::Vector2i)mouse_position);
+			int index_esto = upper_toolbar.index_by_click((sf::Vector2i)mouse_position);
 
 			if (!index.empty())
 			{
@@ -595,6 +615,11 @@ int main()
 				if (index == "open_file")       { select_file(new_canvas); }
 			}
 
+			else if (index_esto != -1)
+			{
+				active_canvas_index = index_esto;
+				new_canvas = *canvases[active_canvas_index];
+			}
 
 			//string index = canvas_button_image.is_inside((sf::Vector2i)mouse_position);
 
