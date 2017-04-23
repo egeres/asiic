@@ -19,7 +19,7 @@ void select_file(canvas& input_canvas)
 	ofn.lpstrFilter = "Text Files\0*.txt\0Any File\0*.*\0";
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrTitle = "Select a File, yo!";
+	ofn.lpstrTitle = "Select a text file to open";
 	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
 	if (GetOpenFileNameA(&ofn))
@@ -337,6 +337,9 @@ int main()
 	int initial_size_y = 900;
 	sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor v1.1.0");
+
+	//sf::View view1(55 sf::FloatRect(0, 200, window.GetSize().x, window.GetSize().y);
+
 	window.setVerticalSyncEnabled(true);
 	window.setView(view1);
 	int displacement_x = 350;
@@ -400,6 +403,7 @@ int main()
 	sf::Texture tex_icon_folder;
 	sf::Texture tex_icon_options;
 	sf::Texture tex_icon_resize_b;
+	sf::Texture tex_icon_spacing;
 
 	if (!tex_icon_pencil_selection.loadFromFile("assets/icon_pencil_selection.png")) {}
 	if (!tex_icon_equal_character_selection.loadFromFile("assets/icon_equal_character_selection.png")) {}
@@ -410,6 +414,7 @@ int main()
 	if (!tex_icon_folder.loadFromFile("assets/icon_folder.png")) {}
 	if (!tex_icon_options.loadFromFile("assets/icon_options.png")) {}
 	if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
+	if (!tex_icon_spacing.loadFromFile("assets/icon_alpha_20_60.png")) {}
 
 	//images & sprites
 	sf::Sprite spr_icon_pencil_selection;
@@ -421,6 +426,7 @@ int main()
 	sf::Sprite spr_icon_folder;
 	sf::Sprite spr_icon_options;
 	sf::Sprite spr_icon_resize_b;
+	sf::Sprite spr_icon_spacing;
 
 	spr_icon_pencil_selection.setTexture(tex_icon_pencil_selection);
 	spr_icon_equal_character_selection.setTexture(tex_icon_equal_character_selection);
@@ -431,6 +437,7 @@ int main()
 	spr_icon_folder.setTexture(tex_icon_folder);
 	spr_icon_options.setTexture(tex_icon_options);
 	spr_icon_resize_b.setTexture(tex_icon_resize_b);
+	spr_icon_spacing.setTexture(tex_icon_spacing);
 
 	//sound (yeah, there's sound in this software...)
 	sf::SoundBuffer buffer_minimal_click;
@@ -440,12 +447,26 @@ int main()
 	sound_minimal_click.setBuffer(buffer_minimal_click);
 	sound_minimal_click.setVolume(15);
 
+	//upper navigation bar
+	navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.05), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
+	//upper_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,         "pencil_mode")    );
+	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5) );
+	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5));
+	upper_toolbar.list_of_buttons.push_back(new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5));
+	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_2.txt", "pressed_button_1", font_pixel, sf::Color(5, 5, 5), 5) );
+
+	upper_toolbar.update();
+
 	//navigation bar
-	navigation_bar main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
+	navigation_bar_img main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,         "pencil_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,         "square_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,           "wand_mode")      );
-	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection,"similarity_mode"));
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection, "similarity_mode"));
+
+	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_spacing,""));
+	//main_toolbar.list_of_buttons.push_back( new spacer(sf::Vector2i(15, 1)));
+
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,                     "save")           );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                   "open_file")      );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_options,                  "options")        );
@@ -478,6 +499,7 @@ int main()
 
 		clock.restart();
 		
+		view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
 		mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
 		out_of_canvas  = !inside_rect((sf::Vector2i)mouse_position, displacement_x, displacement_y, new_canvas.size_x*cell_size_x, new_canvas.size_y*cell_size_y);
@@ -816,7 +838,8 @@ int main()
 
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
-			main_toolbar.render(window, (sf::Vector2i)mouse_position);
+			main_toolbar.render( window, (sf::Vector2i)mouse_position);
+			upper_toolbar.render(window, (sf::Vector2i)mouse_position);
 
 			if (!out_of_canvas) 
 			{ 
