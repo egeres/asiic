@@ -51,8 +51,6 @@
 					<Add directory="../SFML_win32/lib" />
 				</Linker>
 			</Target>
-			
-			
 			<Target title="Debug_linux">
 				<Option output="bin/Debug/asiic_linux" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
@@ -82,7 +80,6 @@
 					<Add library="sfml-system" />
 				</Linker>
 			</Target>
-
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -92,6 +89,9 @@
 		<Unit filename="canvas.cpp" />
 		<Unit filename="canvas.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
