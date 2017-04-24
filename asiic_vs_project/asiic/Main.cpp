@@ -105,7 +105,6 @@ std::string select_file(bool filehastoexist)
 	bugs / improvements:
 		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
 		there's a quintillion of warnings about possible data loss...
-		fix canvas resizing causing issues with te interface
 		fix square selection lagging
 		fix weird displacement with the canvas drag and drop button
 		fix "out of matrix" tier issues with the "blinking cursor" when moving left
@@ -140,6 +139,7 @@ std::string select_file(bool filehastoexist)
 
 
 /* IMPLENTED / FIXED
+	fix canvas resizing causing issues with te interface
 	everything crashes when two file types are the same i sepparated tabs... -_-"
 	fix camera zoom
 	fix "out of matrix" tier issues with the "blinking cursor" when moving right
@@ -288,22 +288,28 @@ sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x
 }
 
 //draws a text string (with a sexy coloured background) above the toolbox from below
-void draw_text_over_toobox_up(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
+void draw_text_over_toobox_up(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt, sf::View& reference_view)
 {
 
 	text_obj.setString(input_string);
 	sf::FloatRect bounds = text_obj.getLocalBounds();
 
 	text_obj.setPosition(
-		((int)input_window.getSize().x / 2) - bounds.width/2,
-		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 3
+		//((int)input_window.getSize().x / 2) - bounds.width/2,
+		//((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 3
+
+		((int)reference_view.getSize().x / 2) - bounds.width/2,
+		((int)reference_view.getSize().y - (int)reference_view.getSize().y * 0.15) - 65 + 3
 	);
 
 	sf::RectangleShape rectangle(sf::Vector2f(bounds.width + 16, fnt.getLineSpacing(40)));
 	rectangle.setFillColor(sf::Color(14, 14, 14));
 	rectangle.setPosition(
-		((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
-		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 3
+		//((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
+		//((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 3
+
+		((int)reference_view.getSize().x / 2) - bounds.width/2 - 8,
+		((int)reference_view.getSize().y - (int)reference_view.getSize().y * 0.15) - 50 + 3
 	);
 
 	input_window.draw(rectangle);
@@ -494,7 +500,13 @@ int main()
 
 		//currently zoom is disabled with this option from here
 		//view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
-		hud_view.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+		hud_view.setSize(  sf::Vector2f(window.getSize().x, window.getSize().y));
+		hud_view.setCenter(window.getSize().x/2, window.getSize().y/2);
+
+		upper_toolbar.pos = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02);
+		main_toolbar.pos  = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15);
+		upper_toolbar.update();
+		main_toolbar.update();
 
 		//input management (part 1)
 		window.setView(canvas_view);
@@ -865,7 +877,7 @@ int main()
 				string_cell_upper_toolbox = "< >";
 			}
 			//std::cout << "7.8\n";
-			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
+			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel, hud_view);
 			//std::cout << "7.9\n";
 			if (main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "clicked the toolbar...")
 			{

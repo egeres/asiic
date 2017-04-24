@@ -115,7 +115,6 @@ void navigation_bar_img::update()
 
 		for (int i = 0; i < list_of_buttons.size(); i++)
 		{
-			std::cout << " pos_x = " << pos_x;
 			list_of_buttons[i]->spr.setPosition(sf::Vector2f(pos_x, pos_y));
 			list_of_buttons[i]->pos = sf::Vector2i(pos_x, pos_y);
 			pos_x += list_of_buttons[i]->wh.x;
