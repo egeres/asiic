@@ -34,7 +34,7 @@ std::string select_file(bool filehastoexist)
 
 	if (GetOpenFileNameA(&ofn))
 	{
-		std::cout << "Selected file... \"" << filename << "\"\n";
+		//std::cout << "Selected file... \"" << filename << "\"\n";
 		return filename;
 		//input_canvas.load_text_file(filename);
 	}
@@ -103,14 +103,12 @@ std::string select_file(bool filehastoexist)
 		startup dialog
 
 	bugs / improvements:
-		size of upper toolbar can sometimes be incorrect ?
+		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
 		there's a quintillion of warnings about possible data loss...
-		everything crashes when two file types are the same i sepparated tabs... -_-"
 		fix canvas resizing causing issues with te interface
-		fix camera zoom
 		fix square selection lagging
 		fix weird displacement with the canvas drag and drop button
-		fix "out of matrix" tier issues with the "blinking cursor"
+		fix "out of matrix" tier issues with the "blinking cursor" when moving left
 		fix square selection bugging when leaving things selected
 		better text input, keys lag by some reason
 	
@@ -142,6 +140,9 @@ std::string select_file(bool filehastoexist)
 
 
 /* IMPLENTED / FIXED
+	everything crashes when two file types are the same i sepparated tabs... -_-"
+	fix camera zoom
+	fix "out of matrix" tier issues with the "blinking cursor" when moving right
 	fixed issue with the main active canvas
 	upper tabs select different canvases
 	upper tabs for multiple canvas selecion
@@ -340,10 +341,15 @@ int main()
 	//view variables
 		int initial_size_x = 1500;
 		int initial_size_y = 900;
+
 		sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+
+		sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+		sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+
 		sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.2");
 		window.setVerticalSyncEnabled(true);
-		window.setView(view1);
+
 		int displacement_x = 350;
 		int displacement_y = 50;
 		int cell_size_x      = 17;
@@ -372,6 +378,7 @@ int main()
 		bool left_mouse_button_just_down;
 		bool left_mouse_button_just_up;
 		bool prev_any_key_is_pressed;
+		sf::Vector2f hud_mouse_position;
 		sf::Vector2f mouse_position;
 		sf::Vector2f prev_mouse_position;
 		sf::Vector2f initial_mouse_position;
@@ -481,15 +488,20 @@ int main()
 
 	{
 
-		std::cout << "0\n";
+		//std::cout << "0\n";
 
 		clock.restart();
 
 		//currently zoom is disabled with this option from here
-		view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+		//view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+		hud_view.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
 
 		//input management (part 1)
+		window.setView(canvas_view);
 		mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		window.setView(hud_view);
+		hud_mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
 		out_of_canvas  = !inside_rect((sf::Vector2i)mouse_position, displacement_x, displacement_y, new_canvas.size_x*cell_size_x, new_canvas.size_y*cell_size_y);
 		//displacement_v should be a 2d vector in first place
 		displacement_v = sf::Vector2i(displacement_x, displacement_y);
@@ -497,14 +509,14 @@ int main()
 		left_mouse_button_is_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 		left_mouse_button_just_down = false;
 		if (left_mouse_button_is_down && !prev_left_mouse_button_is_down) {
-			left_mouse_button_just_down = true; std::cout << "left m";
+			left_mouse_button_just_down = true; //std::cout << "left m";
 		}
 		left_mouse_button_just_up = false;
 		if (!left_mouse_button_is_down && prev_left_mouse_button_is_down) {
-			left_mouse_button_just_up = true; std::cout << "up";
+			left_mouse_button_just_up = true; //std::cout << "up";
 		}
 
-		std::cout << "1\n";
+		//std::cout << "1\n";
 
 		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 6;
 		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 6;
@@ -529,7 +541,7 @@ int main()
 			canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
 		}
 
-		std::cout << "2\n";
+		//std::cout << "2\n";
 
 		//events happen here in part
 		sf::Event event;
@@ -542,18 +554,19 @@ int main()
 			else if (event.type == sf::Event::MouseWheelMoved)
 			{
 				zoom += (event.mouseWheel.delta * 0.1);
-				view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
+				//view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
+				canvas_view.setSize(sf::Vector2f(window.getSize().x * zoom, window.getSize().y * zoom));
 			}
 		}
 
-		std::cout << "3\n";
+		//std::cout << "3\n";
 
 		//button handling
 		if (left_mouse_button_is_down)
 		{
 
-			string index      = main_toolbar.check_click(    (sf::Vector2i)mouse_position);
-			int    index_esto = upper_toolbar.index_by_click((sf::Vector2i)mouse_position);
+			string index      = main_toolbar.check_click(    (sf::Vector2i)hud_mouse_position);
+			int    index_esto = upper_toolbar.index_by_click((sf::Vector2i)hud_mouse_position);
 
 			//means we've selected something from the toolbar
 			if (!index.empty())
@@ -568,8 +581,13 @@ int main()
 					if (new_canvas.file_route.empty())
 					{
 						new_canvas.file_route = select_file(false);
+						new_canvas.set_name_from_path(new_canvas.file_route);
 					}
 					new_canvas.save_to(new_canvas.file_route);
+					new_canvas.set_name_from_path(new_canvas.file_route);
+
+					canvases[active_canvas_index]->file_route  = new_canvas.file_route;
+					canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
 				}
 
 				if (index == "open_file")
@@ -676,7 +694,7 @@ int main()
 			}
 		}
 
-		std::cout << "4\n";
+		//std::cout << "4\n";
 
 		//text input management, pretty much it only works when something in the canvas is selected...
 		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed)
@@ -706,17 +724,46 @@ int main()
 					}
 					else
 					{
-						value_to_add = event.text.unicode;
-						new_canvas.set_char_selected(value_to_add);
 						selection_position = new_canvas.first_position_selection();
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+
+						if (selection_position.y+1 < new_canvas.size_y)
+						{
+							if (selection_position.x+1 < new_canvas.size_x)
+							{
+								value_to_add = event.text.unicode;
+								new_canvas.set_char_selected(value_to_add);
+								new_canvas.deselect_all();
+								new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+							}
+							else
+							{
+								value_to_add = event.text.unicode;
+								new_canvas.set_char_selected(value_to_add);
+								new_canvas.deselect_all();
+								new_canvas.activ_cells[selection_position.y + 1][0] = true;
+							}
+						}
+						else
+						{
+							if (selection_position.x+1 < new_canvas.size_x)
+							{
+								value_to_add = event.text.unicode;
+								new_canvas.set_char_selected(value_to_add);
+								new_canvas.deselect_all();
+								new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+							}
+							else
+							{
+								value_to_add = event.text.unicode;
+								new_canvas.set_char_selected(value_to_add);
+							}
+						}
 					}
 				}
 			}
 		}
 
-		std::cout << "5\n";
+		//std::cout << "5\n";
 
 		//this parts adds usability to the keys in order to move the cursor if it's just one selected
 		if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
@@ -766,7 +813,7 @@ int main()
 			displacement_y += mouse_position.y - prev_mouse_position.y;
 		}
 
-		std::cout << "6\n";
+		//std::cout << "6\n";
 
 		//used to clear the selection
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
@@ -775,30 +822,35 @@ int main()
 			new_canvas.deselect_all();
 		}
 
-		std::cout << "7\n";
+		//std::cout << "7\n";
 
 		//the drawing part of the loop
 		window.clear();
-		window.draw(text_consolas);
 
-			std::cout << "7.0\n";
+			window.setView(canvas_view);
+			window.draw(text_consolas); //eeh ?
+
+			//std::cout << "7.0\n";
 			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-			std::cout << "7.1\n";
+			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-			std::cout << "7.2\n";
+			//std::cout << "7.2\n";
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
-			std::cout << "7.3\n";
+			//std::cout << "7.3\n";
 			window.draw(canvas_button_image.spr);
-			std::cout << "7.4\n";
+			//std::cout << "7.4\n";
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
-			std::cout << "7.5\n";
-			main_toolbar.render( window, (sf::Vector2i)mouse_position);
-			std::cout << "7.6\n";
+
+			window.setView(hud_view);
+
+			//std::cout << "7.5\n";
+			main_toolbar.render( window, (sf::Vector2i)hud_mouse_position);
+			//std::cout << "7.6\n";
 			for (int i = 0; i< upper_toolbar.list_of_buttons.size();i++)
 			{upper_toolbar.list_of_buttons[i]->str = canvases[i]->canvas_name;}
 			upper_toolbar.update();
-			upper_toolbar.render(window, (sf::Vector2i)mouse_position);
-			std::cout << "7.7\n";
+			upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
+			//std::cout << "7.7\n";
 			if (!out_of_canvas)
 			{
 				string_cell_upper_toolbox = "";
@@ -812,19 +864,19 @@ int main()
 			{
 				string_cell_upper_toolbox = "< >";
 			}
-			std::cout << "7.8\n";
+			//std::cout << "7.8\n";
 			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
-			std::cout << "7.9\n";
-			if (main_toolbar.check_click((sf::Vector2i)mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)mouse_position) != "clicked the toolbar...")
+			//std::cout << "7.9\n";
+			if (main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "clicked the toolbar...")
 			{
 				std::string texti_pixel;
-				texti_pixel = main_toolbar.check_click((sf::Vector2i)mouse_position);
+				texti_pixel = main_toolbar.check_click((sf::Vector2i)hud_mouse_position);
 				draw_text_over_toobox_bottom(window, texti_pixel, text_pixel, font_pixel);
 			}
 
-		std::cout << "8\n";
+		//std::cout << "8\n";
 
-		window.setView(view1);
+		//window.setView(view1);
 		window.display();
 
 		//prev variables
@@ -841,7 +893,7 @@ int main()
 		    sf::sleep(sf::seconds(sleepTime));
 		}
 
-		std::cout << "9\n";
+		//std::cout << "9\n";
 	}
 	return 0;
 }

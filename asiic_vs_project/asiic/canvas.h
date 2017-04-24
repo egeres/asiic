@@ -23,7 +23,7 @@ public:
 	void select_bucket(sf::Vector2i initial_point);
 	void resize(int, int);
 	void equal_character_selection(char);
-
+	void set_name_from_path(std::string);
 	int size_x, size_y;
 	std::string canvas_name;
 	std::string file_route;

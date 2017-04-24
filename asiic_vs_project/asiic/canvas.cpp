@@ -80,21 +80,19 @@ void canvas::center_canvas_in_window() {}
 void canvas::load_text_file(std::string input_file_name)
 {
 
-	std::istringstream ss(input_file_name);
-	std::string segment;
-	std::vector<std::string> seglist;
+	//std::istringstream ss(input_file_name);
+	//std::string segment;
+	//std::vector<std::string> seglist;
+	//while(std::getline(ss, segment, '\\'))
+	//{seglist.push_back(segment);}
+	//std::string step_2 = seglist.back();
+	//seglist.clear();
+	//std::istringstream ss2(step_2);
+	//while(std::getline(ss2, segment, '.'))
+	//{seglist.push_back(segment);}
+	//canvas_name = seglist.front();
 
-	while(std::getline(ss, segment, '\\'))
-	{seglist.push_back(segment);}
-
-	std::string step_2 = seglist.back();
-	seglist.clear();
-	std::istringstream ss2(step_2);
-
-	while(std::getline(ss2, segment, '.'))
-	{seglist.push_back(segment);}
-
-	canvas_name = seglist.front();
+	set_name_from_path(input_file_name);
 	file_route = input_file_name;
 
 	std::ifstream file(input_file_name.c_str());
@@ -361,4 +359,23 @@ void canvas::equal_character_selection(char input_character)
 			}
 		}
 	}
+}
+//from something like "D:/cosa/stuff/file.txt", set and extract "file" as a name
+void canvas::set_name_from_path(std::string input_file_name)
+{
+	std::istringstream ss(input_file_name);
+	std::string segment;
+	std::vector<std::string> seglist;
+
+	while(std::getline(ss, segment, '\\'))
+	{seglist.push_back(segment);}
+
+	std::string step_2 = seglist.back();
+	seglist.clear();
+	std::istringstream ss2(step_2);
+
+	while(std::getline(ss2, segment, '.'))
+	{seglist.push_back(segment);}
+
+	canvas_name = seglist.front();
 }
