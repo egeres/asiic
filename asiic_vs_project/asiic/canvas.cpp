@@ -9,22 +9,26 @@
 #include <iostream>
 #include <algorithm>
 #include <string.h>
+#include <sstream>
 
 //canvas constructor
-canvas::canvas(int input_size_x, int input_size_y)
+canvas::canvas(int input_size_x, int input_size_y, std::string input_name)
 {
 
 	using namespace std;
 
-	size_x = input_size_x;
-	size_y = input_size_y;
+	size_x      = input_size_x;
+	size_y      = input_size_y;
+	canvas_name = input_name;
+	
+	//file_route  = "";
 
 	//char canvas_array[10][10];
 
-	list<list<string>> text;
+	list<list<string> > text;
 	activ_cells.resize(    input_size_y, vector<bool>( input_size_x, false));
 	tmp_activ_cells.resize(input_size_y, vector<short>(input_size_x, 0));
-	cell_letters.resize(   input_size_y, vector<char>( input_size_x, ' '));	
+	cell_letters.resize(   input_size_y, vector<char>( input_size_x, ' '));
 }
 
 //turns all the activ_cells in false
@@ -39,7 +43,6 @@ void canvas::deselect_all()
 		}
 	}
 	std::cout << "finished deselecting all...\n";
-
 }
 
 //turns all the selected cells in that specific char
@@ -72,7 +75,7 @@ void canvas::save_to(std::string file_name)
 	}
 
 	//save this stuff
-	std::ofstream out(file_name);
+	std::ofstream out(file_name.c_str());
 	out << text;
 	out.close();
 
@@ -80,25 +83,56 @@ void canvas::save_to(std::string file_name)
 }
 
 void canvas::center_canvas_in_window() {}
+
+
 void canvas::load_text_file(std::string input_file_name)
 {
 
-	std::cout << "\ninputting... " << input_file_name << "\n";
-	std::ifstream file(input_file_name);
+	//std::cout << "\ninputting... " << input_file_name << "\n";
+
+	file_route = input_file_name;
+	//file_route = "input_file_name";
+
+
+	std::istringstream ss(input_file_name);
+
+	std::string segment;
+	std::vector<std::string> seglist;
+	while(std::getline(ss, segment, '\\'))
+	{
+	   seglist.push_back(segment);
+	}
+
+	std::string step_2 = seglist.back();
+
+	seglist.clear();
+	std::istringstream ss2(step_2);
+
+	while(std::getline(ss2, segment, '.'))
+	{
+	   seglist.push_back(segment);
+	}
+
+	canvas_name = seglist.front();
+	//canvas_name = "cacaaa";
+
+	//std::cout << "\noutcome should be this : " << seglist.front();
+
+	std::ifstream file(input_file_name.c_str());
 	std::string str;
 
 	int canvas_size_x = 0;
 	int canvas_size_y = 0;
 
-	//the first step consists on measuing 
+	//the first step consists on measuing
 	while (std::getline(file, str))
-	{	
+	{
 		if (str.size() > canvas_size_x) { canvas_size_x = str.size(); }
 	    canvas_size_y += 1;
 	}
 
 	//std::cout << "|" << canvas_size_x << "|" << canvas_size_y << "|";
-	
+
 	deselect_all();
 	//int to_resize_x = size_x - canvas_size_x
 	resize(canvas_size_x - size_x, canvas_size_y - size_y);
@@ -114,8 +148,8 @@ void canvas::load_text_file(std::string input_file_name)
 		for (int i = 0; i < str.size(); i++)
 		{
 			if (i < str.size())
-			{ 
-				std::cout << str[i];
+			{
+				//std::cout << str[i];
 
 				cell_letters[counter_line][i] = (char)str[i];
 				//cell_letters[counter_line][i] = 'p';
@@ -144,12 +178,12 @@ void canvas::set_square_selection_temporal(sf::Vector2i starting_point, sf::Vect
 	tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
 
 	for (int i = 0; i < std::abs(dif_y) + 1; i++)
-	{	
-		if (dif_x > 0) 
+	{
+		if (dif_x > 0)
 		{
 			for (int j = 0; j < std::abs(dif_x) + 1; j++)
 			{
-				if (dif_y > 0) 
+				if (dif_y > 0)
 				{
 					tmp_activ_cells[           i+starting_point.y][j+starting_point.x] = 1;
 					if (value) tmp_activ_cells[i+starting_point.y][j+starting_point.x] = 2;
@@ -184,7 +218,7 @@ void canvas::set_square_selection_temporal(sf::Vector2i starting_point, sf::Vect
 }
 
 //used in the function from below to check if input_2d_vector is inside of input_vector
-bool check_inside_vector_list(std::vector<sf::Vector2i*> input_vector, sf::Vector2i input_2d_vector) 
+bool check_inside_vector_list(std::vector<sf::Vector2i*> input_vector, sf::Vector2i input_2d_vector)
 {
 	for(int i = 0; i< input_vector.size(); i++)
 	{
@@ -224,7 +258,7 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 
 			//if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y-1 >= 0 && selected_point->y-1 <= size_y-1) &&
 			if ((selected_point->x >= 0 && selected_point->x <= activ_cells[0].size()-1 && selected_point->y-1 >= 0 && selected_point->y-1 <= activ_cells.size()-1) &&
-				(cell_letters[selected_point->y-1][selected_point->x] == selected_char) && 
+				(cell_letters[selected_point->y-1][selected_point->x] == selected_char) &&
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x,selected_point->y-1))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x,selected_point->y-1)))) {
 				//std::cout << "b.2.0\n";
@@ -236,7 +270,7 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 
 			//if ((selected_point->x+1 >= 0 && selected_point->x+1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
 			if ((selected_point->x+1 >= 0 && selected_point->x+1 <= activ_cells[0].size()-1 && selected_point->y >= 0 && selected_point->y <= activ_cells.size()-1) &&
-				(cell_letters[selected_point->y][selected_point->x+1] == selected_char) && 
+				(cell_letters[selected_point->y][selected_point->x+1] == selected_char) &&
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x+1,selected_point->y))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x+1,selected_point->y)))) {
 				open_list.push_back(new sf::Vector2i(selected_point->x+1,selected_point->y));
@@ -244,7 +278,7 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 
 			//if ((selected_point->x >= 0 && selected_point->x <= size_x-1 && selected_point->y+1 >= 0 && selected_point->y+1 <= size_y-1) &&
 			if ((selected_point->x >= 0 && selected_point->x <= activ_cells[0].size()-1 && selected_point->y+1 >= 0 && selected_point->y+1 <= activ_cells.size()-1) &&
-				(cell_letters[selected_point->y+1][selected_point->x] == selected_char) && 
+				(cell_letters[selected_point->y+1][selected_point->x] == selected_char) &&
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x,selected_point->y+1))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x,selected_point->y+1)))) {
 				open_list.push_back(new sf::Vector2i(selected_point->x,selected_point->y+1));
@@ -252,7 +286,7 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 
 			//if ((selected_point->x-1 >= 0 && selected_point->x-1 <= size_x-1 && selected_point->y >= 0 && selected_point->y <= size_y-1) &&
 			if ((selected_point->x-1 >= 0 && selected_point->x-1 <= activ_cells[0].size()-1 && selected_point->y >= 0 && selected_point->y <= activ_cells.size()-1) &&
-				(cell_letters[selected_point->y][selected_point->x-1] == selected_char) && 
+				(cell_letters[selected_point->y][selected_point->x-1] == selected_char) &&
 				(!check_inside_vector_list(open_list, sf::Vector2i(selected_point->x-1,selected_point->y))) &&
 				(!check_inside_vector_list(clos_list, sf::Vector2i(selected_point->x-1,selected_point->y)))) {
 				open_list.push_back(new sf::Vector2i(selected_point->x-1,selected_point->y));
@@ -266,11 +300,10 @@ void canvas::select_bucket(sf::Vector2i initial_point)
 
 	}
 	//std::cout << "started bucket selection...\n";
-
 }
 
 //function which overlays the temporary matrix over the original matrix activ_cells
-void canvas::overlay_short_matrix(std::vector<std::vector<short>> input_matrix)
+void canvas::overlay_short_matrix(std::vector<std::vector<short> > input_matrix)
 {
 	for (int i = 0; i < input_matrix.size(); i++)
 	{
@@ -307,18 +340,18 @@ int canvas::return_ammount_selected()
 //returns the first position that has been selected
 sf::Vector2i canvas::first_position_selection()
 {
-	
+
 	sf::Vector2i to_return;
 	for (int i = 0; i < activ_cells.size(); i++)
 	{
 		for (int j = 0; j < activ_cells[0].size(); j++)
 		{
 
-			if (activ_cells[i][j]) 
+			if (activ_cells[i][j])
 			{
 				to_return.x = j;
 				to_return.y = i;
-				return to_return; 
+				return to_return;
 			}
 		}
 	}
@@ -363,11 +396,11 @@ void canvas::resize(int input_x, int input_y)
 		//std::cout << "cell_letters [" << cell_letters.size() << " " << cell_letters[0].size() << "] ";
 		//std::cout << "      buffer_cell_letters [" << buffer_cell_letters.size() << " " << buffer_cell_letters[0].size() << "] \n";
 
-		if (activ_cells.size() < buffer_activ_cells.size()) 
+		if (activ_cells.size() < buffer_activ_cells.size())
 		{ for_size_y = activ_cells.size(); }
 		else { for_size_y = buffer_cell_letters.size(); }
 
-		if (activ_cells[0].size() < buffer_activ_cells[0].size()) 
+		if (activ_cells[0].size() < buffer_activ_cells[0].size())
 		{ for_size_x = activ_cells[0].size(); }
 		else { for_size_x = buffer_cell_letters[0].size(); }
 
@@ -423,7 +456,7 @@ void canvas::equal_character_selection(char input_character)
 	{
 		for (int j = 0; j < cell_letters[0].size(); j++)
 		{
-			if (cell_letters[i][j] == input_character) 
+			if (cell_letters[i][j] == input_character)
 			{
 				activ_cells[i][j] = true;
 			}

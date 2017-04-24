@@ -52,6 +52,7 @@ class button_text : public gui_element
 public:
 	button_text(sf::Vector2i, std::string, std::string, sf::Font&, sf::Color, int);
 	bool is_inside(sf::Vector2i);
+	void update();
 	//sf::Vector2i pos;
 	//sf::Vector2i wh;
 	int padding;

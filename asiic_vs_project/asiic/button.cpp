@@ -104,6 +104,13 @@ button_text::button_text(sf::Vector2i input_pos, std::string display_string, std
 	//spr.setPosition(pos.x, pos.y);
 }
 
+void button_text::update()
+{
+	txt_obj.setString(str);
+	wh  = sf::Vector2i(txt_obj.getGlobalBounds().width +padding*2, txt_obj.getGlobalBounds().height+padding*2);
+	background_rectangle.setSize(sf::Vector2f(wh.x, wh.y));
+}
+
 bool button_text::is_inside(sf::Vector2i input_vector)
 {
 	if (input_vector.x > pos.x && input_vector.x < pos.x + wh.x)
@@ -312,6 +319,13 @@ void navigation_bar_txt::update()
 	
 	background_rectangle.setSize(sf::Vector2f(50, 100));
 
+
+
+	for (int i = 0; i < list_of_buttons.size(); i++)
+	{
+		list_of_buttons[i]->update();
+	}
+
 	int total_size_x = 0;
 	int total_size_y = 0;
 
@@ -476,7 +490,6 @@ std::string navigation_bar_txt::check_click(sf::Vector2i input_vector)
 
 	return return_string;
 }
-
 
 int navigation_bar_txt::index_by_click(sf::Vector2i input_vector)
 {
