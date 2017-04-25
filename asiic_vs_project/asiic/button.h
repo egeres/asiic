@@ -45,7 +45,7 @@ public:
 	void render(sf::RenderWindow&, sf::Vector2i);
 	void update();
 	bool is_inside(sf::Vector2i);
-	std::string navigation_bar_img::check_click(sf::Vector2i);
+	std::string check_click(sf::Vector2i);
 
 	sf::Sound overlay_sound;
 	sf::RectangleShape background_rectangle;
