@@ -82,22 +82,20 @@ std::string select_file(bool filehastoexist)
 	make center_canvas_in_window() great again, lol
 
 	functionality / tools :
-		canvas are placed in a dynamic vector now
+		
 		shorcuts :P
 		square selection moving when out of boundaries
 		select lines ?
 		add ctrl+z
-		move selection with middle mouse ?
 		blinking cursor displace text sideways both left and right ?
 		move selection with arrow keys
-		move selection with ctrl+middlemouse
 
 	menu / interface :
 		create an add button for creating more tabs
 		display square selection size
 		help window ?
 		blinking cursor
-		invert colors ?
+		invert colors option ?
 		right click pie menu ?
 		options menu
 		startup dialog
@@ -140,12 +138,15 @@ std::string select_file(bool filehastoexist)
 
 
 /* IMPLENTED / FIXED
+	drag and drop system
+	'color picker' implemented
 	fix canvas resizing causing issues with te interface
 	everything crashes when two file types are the same i sepparated tabs... -_-"
 	fix camera zoom
 	fix "out of matrix" tier issues with the "blinking cursor" when moving right
 	fixed issue with the main active canvas
 	upper tabs select different canvases
+	canvases are located in a dynamic vector now
 	upper tabs for multiple canvas selecion
 	spacer class
 	GUI object class
@@ -393,6 +394,7 @@ int main()
 		bool moving_selection_around = false;
 		bool prev_moving_selection_around = false;
 		sf::Vector2i drag_and_drop_starting_point;
+		sf::Vector2i drag_and_drop_cell_displacement;
 
 	//the canvas itself
 		vector<canvas*> canvases;
@@ -874,6 +876,7 @@ int main()
 			std::cout << "started =^3^=\n";
 			drag_and_drop_starting_point = (sf::Vector2i)mouse_position;
 			new_canvas.drag_drop_activ_cells = new_canvas.activ_cells;
+			new_canvas.drag_drop_cell_letters = new_canvas.cell_letters;
 		}
 		else if (moving_selection_around && prev_moving_selection_around)
 		{
@@ -883,6 +886,22 @@ int main()
 		{
 			//.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
 			std::cout << "finihed ? :$\n";
+
+			new_canvas.set_char_selected(' ');
+			new_canvas.deselect_all();
+
+			new_canvas.overlay_drag_and_drop(
+
+			new_canvas.drag_drop_activ_cells,
+			new_canvas.drag_drop_cell_letters,
+			(
+				cell_location(
+				((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point), 
+				new_canvas, cell_size_x, cell_size_y)
+			)
+
+			);
+
 
 		}
 
@@ -899,6 +918,10 @@ int main()
 			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.2\n";
+
+
+
+
 			if (moving_selection_around && prev_moving_selection_around)
 			{
 				sf::Vector2i to_insert;
@@ -907,6 +930,10 @@ int main()
 
 				draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
 			}
+
+
+
+
 
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
 			//std::cout << "7.3\n";

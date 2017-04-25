@@ -26,11 +26,14 @@ public:
 	void set_name_from_path(std::string);
 	int size_x, size_y;
 
+	void overlay_drag_and_drop(std::vector<std::vector<bool> >, std::vector<std::vector<char> >, sf::Vector2i);
 	std::string canvas_name;
 	std::string file_route;
 
 	std::vector<std::vector<bool> >  activ_cells;
 	std::vector<std::vector<bool> >  drag_drop_activ_cells;
+	std::vector<std::vector<char> >  drag_drop_cell_letters;
+
 	std::vector<std::vector<short> > tmp_activ_cells;
 	std::vector<std::vector<char> >  cell_letters;
 

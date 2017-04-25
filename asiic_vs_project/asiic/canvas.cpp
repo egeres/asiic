@@ -79,19 +79,6 @@ void canvas::center_canvas_in_window() {}
 //loads a given file into the canvas
 void canvas::load_text_file(std::string input_file_name)
 {
-
-	//std::istringstream ss(input_file_name);
-	//std::string segment;
-	//std::vector<std::string> seglist;
-	//while(std::getline(ss, segment, '\\'))
-	//{seglist.push_back(segment);}
-	//std::string step_2 = seglist.back();
-	//seglist.clear();
-	//std::istringstream ss2(step_2);
-	//while(std::getline(ss2, segment, '.'))
-	//{seglist.push_back(segment);}
-	//canvas_name = seglist.front();
-
 	set_name_from_path(input_file_name);
 	file_route = input_file_name;
 
@@ -378,4 +365,25 @@ void canvas::set_name_from_path(std::string input_file_name)
 	{seglist.push_back(segment);}
 
 	canvas_name = seglist.front();
+}
+//
+void canvas::overlay_drag_and_drop(std::vector<std::vector<bool> > input_matrix_bool, std::vector<std::vector<char> > input_matrix_char, sf::Vector2i vec)
+{
+	for (int i = 0; i < input_matrix_bool.size(); i++)
+	{
+		for (int j = 0; j < input_matrix_bool[0].size(); j++)
+		{
+
+			if (
+					((i+vec.y >= 0) && (i+vec.y < activ_cells.size())) && 
+					((j+vec.x >= 0) && (j+vec.x < activ_cells[0].size()))
+				)
+			{
+				if (input_matrix_bool[i][j])
+				{
+					cell_letters[i+vec.y][j+vec.x] = input_matrix_char[i][j];
+				}
+			}
+		}
+	}
 }
