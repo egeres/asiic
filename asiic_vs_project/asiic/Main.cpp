@@ -103,6 +103,7 @@ std::string select_file(bool filehastoexist)
 		startup dialog
 
 	bugs / improvements:
+		remove the canvas input_value from the function cell_location()
 		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
 		there's a quintillion of warnings about possible data loss...
 		fix square selection lagging
@@ -185,7 +186,7 @@ void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, 
 	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(5, 5, 5));
 	rectangle.setOutlineThickness(1);
-	rectangle.setOutlineColor(sf::Color(10, 10, 10));
+	rectangle.setOutlineColor(sf::Color(13, 13, 13));
 	for (int i = 0; i < input_canvas.size_x; i++)
 	{
 		for (int j = 0; j < input_canvas.size_y; j++)
@@ -196,9 +197,32 @@ void draw_grid(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, 
 	}
 }
 
+//returns a vector which contains the location in which the
+sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x, int spacing_y)
+{
+
+	sf::Vector2i to_return;
+
+	int offset_x;
+	offset_x     = inpt.x % spacing_x;
+	offset_x     = inpt.x - offset_x;
+	offset_x     = offset_x / spacing_x;
+
+	int offset_y;
+	offset_y     = inpt.y % spacing_y;
+	offset_y     = inpt.y - offset_y;
+	offset_y     = offset_y / spacing_y;
+
+	to_return.x = offset_x;
+	to_return.y = offset_y;
+
+	return to_return;
+}
+
 //function which draws the selected cells in the grid
 void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y)
 {
+	//just to crearify, tmp_activ_cells is a temporal matrix created by the square selection
 	input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
 	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(20, 20, 20));
@@ -213,6 +237,32 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 				input_window.draw(rectangle);
 			}
 
+		}
+	}
+}
+
+
+//function which draws... things ? I need to sleep more, lol
+void draw_drag_and_drop(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y, sf::Vector2i displacement_from_mouses, canvas new_canvas)
+{
+	//just to crearify, tmp_activ_cells is a temporal matrix created by the square selection
+	//input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
+	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
+	rectangle.setFillColor(sf::Color(29, 29, 29));
+
+	sf::Vector2i temporal_disp = cell_location(displacement_from_mouses , new_canvas, spacing_x, spacing_y);
+	//std::cout << temporal_disp.x << " _ " << temporal_disp.y << "    " 
+	//<< displacement_from_mouses.x << " _ " << displacement_from_mouses.y << "\n";
+
+	for (int i = 0; i < input_canvas.size_y; i++)
+	{
+		for (int j = 0; j < input_canvas.size_x; j++)
+		{
+			if (input_canvas.activ_cells[i][j]) 
+			{
+				rectangle.setPosition((temporal_disp.x*spacing_x) +  disp_x  +  j*spacing_x, (temporal_disp.y*spacing_y) + disp_y + i*spacing_y);
+				input_window.draw(rectangle);
+			}
 		}
 	}
 }
@@ -265,51 +315,23 @@ bool inside_rect(sf::Vector2i inpt_vector, int pos_x, int pos_y, int width, int 
 	return false;
 }
 
-//returns a vector which contains the location in which the
-sf::Vector2i cell_location(sf::Vector2i inpt, canvas input_canvas, int spacing_x, int spacing_y)
-{
-
-	sf::Vector2i to_return;
-
-	int offset_x;
-	offset_x     = inpt.x % spacing_x;
-	offset_x     = inpt.x - offset_x;
-	offset_x     = offset_x / spacing_x;
-
-	int offset_y;
-	offset_y     = inpt.y % spacing_y;
-	offset_y     = inpt.y - offset_y;
-	offset_y     = offset_y / spacing_y;
-
-	to_return.x = offset_x;
-	to_return.y = offset_y;
-
-	return to_return;
-}
-
 //draws a text string (with a sexy coloured background) above the toolbox from below
-void draw_text_over_toobox_up(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt, sf::View& reference_view)
+void draw_text_over_toobox_up(sf::RenderWindow& input_window, std::string input_string,  sf::Text& text_obj, sf::Font fnt)
 {
 
 	text_obj.setString(input_string);
 	sf::FloatRect bounds = text_obj.getLocalBounds();
 
 	text_obj.setPosition(
-		//((int)input_window.getSize().x / 2) - bounds.width/2,
-		//((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 3
-
-		((int)reference_view.getSize().x / 2) - bounds.width/2,
-		((int)reference_view.getSize().y - (int)reference_view.getSize().y * 0.15) - 65 + 3
+		((int)input_window.getSize().x / 2) - bounds.width/2,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 65 + 3
 	);
 
 	sf::RectangleShape rectangle(sf::Vector2f(bounds.width + 16, fnt.getLineSpacing(40)));
 	rectangle.setFillColor(sf::Color(14, 14, 14));
 	rectangle.setPosition(
-		//((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
-		//((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 3
-
-		((int)reference_view.getSize().x / 2) - bounds.width/2 - 8,
-		((int)reference_view.getSize().y - (int)reference_view.getSize().y * 0.15) - 50 + 3
+		((int)input_window.getSize().x / 2) - bounds.width/2 - 8,
+		((int)input_window.getSize().y - (int)input_window.getSize().y * 0.15) - 50 + 3
 	);
 
 	input_window.draw(rectangle);
@@ -368,6 +390,9 @@ int main()
 		bool selection_value = true;
 		sf::Vector2i square_selection_initial_point;
 		sf::Vector2i square_selection_end_point;
+		bool moving_selection_around = false;
+		bool prev_moving_selection_around = false;
+		sf::Vector2i drag_and_drop_starting_point;
 
 	//the canvas itself
 		vector<canvas*> canvases;
@@ -491,7 +516,6 @@ int main()
 
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
-
 	{
 
 		//std::cout << "0\n";
@@ -637,24 +661,27 @@ int main()
 			//click happened inside of the canvas
 			else if (!out_of_canvas)
 			{
-
-				//selection mode, if adding true values or false values...
-				if (left_mouse_button_just_down)
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
 				{
+					new_canvas.set_char_selected(new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x]);
+				}
+				else
+				{
+					//selection mode, if adding true values or false values...
+					if (left_mouse_button_just_down)
+					{
 						//unnecesary violence
 						selection_value = !new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x];
-				}
-
-				//pencil toggle selection
-				if (selection_mode == 0 && !moving_canvas_button)
-				{
+					}
+					//pencil toggle selection
+					if (selection_mode == 0 && !moving_canvas_button)
+					{
 					//stuff
 					new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x] = selection_value;
-				}
-
-				//square toggle selection mode
-				if (selection_mode == 1 && !moving_canvas_button)
-				{
+					}
+					//square toggle selection mode
+					if (selection_mode == 1 && !moving_canvas_button)
+					{
 					if (left_mouse_button_just_down)
 					{
 						square_selection_initial_point = cell_location_vector;
@@ -662,28 +689,28 @@ int main()
 					}
 					square_selection_end_point = cell_location_vector;
 					new_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
-				}
-
-				//wand selection mode
-				if (selection_mode == 2 && left_mouse_button_just_down && !moving_canvas_button)
-				{
+					}
+					//wand selection mode
+					if (selection_mode == 2 && left_mouse_button_just_down && !moving_canvas_button)
+					{
 					if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || !sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
 					{
 						new_canvas.deselect_all();
 					}
 					new_canvas.select_bucket(cell_location_vector);
-				}
-
-				//wand selection mode
-				if (selection_mode == 3 && left_mouse_button_just_down && !moving_canvas_button)
-				{
+					}
+					//wand selection mode
+					if (selection_mode == 3 && left_mouse_button_just_down && !moving_canvas_button)
+					{
 					char selecion_character = new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x];
 					if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || !sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
 					{
 						new_canvas.deselect_all();
 					}
 					new_canvas.equal_character_selection(selecion_character);
+					}
 				}
+
 			}
 		}
 		if (left_mouse_button_just_up)
@@ -818,15 +845,20 @@ int main()
 				}
 			}
 		}
-		//system to drag the canvas
+		//system to pan the canvas around the view OR move a selection around
+		moving_selection_around = false;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
-			displacement_x += mouse_position.x - prev_mouse_position.x;
-			displacement_y += mouse_position.y - prev_mouse_position.y;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+			{
+				moving_selection_around = true;
+			}
+			else
+			{
+				displacement_x += mouse_position.x - prev_mouse_position.x;
+				displacement_y += mouse_position.y - prev_mouse_position.y;
+			}
 		}
-
-		//std::cout << "6\n";
-
 		//used to clear the selection
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
@@ -834,9 +866,29 @@ int main()
 			new_canvas.deselect_all();
 		}
 
-		//std::cout << "7\n";
+		//std::cout << "6\n";
+		//we take care of the selection thing
+		if (moving_selection_around && !prev_moving_selection_around)
+		{
+			//D: :DD  :D:D D: D: DDDD: ::DDD:D::D::D:
+			std::cout << "started =^3^=\n";
+			drag_and_drop_starting_point = (sf::Vector2i)mouse_position;
+			new_canvas.drag_drop_activ_cells = new_canvas.activ_cells;
+		}
+		else if (moving_selection_around && prev_moving_selection_around)
+		{
+			//doing thiiiiiiiiiiz 7u7 heheheheh
+		}
+		else if (!moving_selection_around && prev_moving_selection_around)
+		{
+			//.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+			std::cout << "finihed ? :$\n";
 
-		//the drawing part of the loop
+		}
+
+
+		//std::cout << "7\n";
+		//the drawing part of the loop, currently everything is drawn in the 'windows' object
 		window.clear();
 
 			window.setView(canvas_view);
@@ -847,6 +899,15 @@ int main()
 			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.2\n";
+			if (moving_selection_around && prev_moving_selection_around)
+			{
+				sf::Vector2i to_insert;
+				to_insert = ((sf::Vector2i)drag_and_drop_starting_point + (sf::Vector2i)mouse_position);
+				to_insert = ((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point);
+
+				draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
+			}
+
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
 			//std::cout << "7.3\n";
 			window.draw(canvas_button_image.spr);
@@ -877,7 +938,7 @@ int main()
 				string_cell_upper_toolbox = "< >";
 			}
 			//std::cout << "7.8\n";
-			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel, hud_view);
+			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
 			//std::cout << "7.9\n";
 			if (main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "clicked the toolbar...")
 			{
@@ -892,6 +953,7 @@ int main()
 		window.display();
 
 		//prev variables
+		prev_moving_selection_around   = moving_selection_around;
 		prev_mouse_position            = mouse_position;
 		prev_left_mouse_button_is_down = left_mouse_button_is_down;
 		prev_any_key_pressed           = (event.type == sf::Event::TextEntered);

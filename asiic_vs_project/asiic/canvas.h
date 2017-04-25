@@ -25,10 +25,12 @@ public:
 	void equal_character_selection(char);
 	void set_name_from_path(std::string);
 	int size_x, size_y;
+
 	std::string canvas_name;
 	std::string file_route;
 
 	std::vector<std::vector<bool> >  activ_cells;
+	std::vector<std::vector<bool> >  drag_drop_activ_cells;
 	std::vector<std::vector<short> > tmp_activ_cells;
 	std::vector<std::vector<char> >  cell_letters;
 
