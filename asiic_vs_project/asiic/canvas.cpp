@@ -387,3 +387,42 @@ void canvas::overlay_drag_and_drop(std::vector<std::vector<bool> > input_matrix_
 		}
 	}
 }
+//
+void canvas::update_back_lineas(sf::Vector2i cell_size)
+{
+
+	int numero_lineas  = 0;
+	numero_lineas += (size_x + 1) * 2;
+	numero_lineas += (size_y + 1) * 2;
+	background_lineas  = sf::VertexArray(sf::Lines, numero_lineas);
+
+	//we update the horizontal lines
+	for (int i = 0; i < size_y + 1; i++)
+	{
+		int x;
+		int y;
+
+		x = 0;
+		y = (i + 0) * cell_size.y;
+		background_lineas[i*2].position = sf::Vector2f(x, y);
+
+		x = 1 * size_x * cell_size.x;
+		y = (i + 0) * cell_size.y;
+		background_lineas[i*2 + 1].position = sf::Vector2f(x, y);
+	}
+
+	//vertical lines are updated
+	for (int i = 0; i < size_x + 1; i++)
+	{
+		int x;
+		int y;
+
+		x = (i + 0) * cell_size.x;
+		y = 0;
+		background_lineas[size_y+1+ i*2].position = sf::Vector2f(x, y);
+
+		x = (i + 0) * cell_size.x;
+		y = 1 * size_y * cell_size.y;
+		background_lineas[size_y+1+ i*2 + 1].position = sf::Vector2f(x, y);
+	}
+}

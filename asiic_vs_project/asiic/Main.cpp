@@ -101,6 +101,7 @@ std::string select_file(bool filehastoexist)
 		startup dialog
 
 	bugs / improvements:
+		everything crashes if input file is empty
 		remove the canvas input_value from the function cell_location()
 		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
 		there's a quintillion of warnings about possible data loss...
@@ -135,7 +136,6 @@ std::string select_file(bool filehastoexist)
 		
 		ctrl + middlemouse | move selection
 */
-
 
 /* IMPLENTED / FIXED
 	drag and drop system
@@ -445,6 +445,7 @@ int main()
 		sf::Texture tex_icon_options;
 		sf::Texture tex_icon_resize_b;
 		sf::Texture tex_icon_spacing;
+		sf::Texture oil_on_canvas;
 
 	//we load textures
 		if (!tex_icon_pencil_selection.loadFromFile("assets/icon_pencil_selection.png")) {}
@@ -457,6 +458,7 @@ int main()
 		if (!tex_icon_options.loadFromFile("assets/icon_options.png")) {}
 		if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
 		if (!tex_icon_spacing.loadFromFile("assets/icon_alpha_20_60.png")) {}
+		if (!oil_on_canvas.loadFromFile("assets/A29861.jpg")) {}
 
 	//images & sprites
 		sf::Sprite spr_icon_pencil_selection;
@@ -516,6 +518,8 @@ int main()
 		bool moving_canvas_button = false;
 		button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
 
+	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
 	{
@@ -555,7 +559,6 @@ int main()
 		}
 
 		//std::cout << "1\n";
-
 		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 6;
 		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 6;
 
@@ -580,7 +583,6 @@ int main()
 		}
 
 		//std::cout << "2\n";
-
 		//events happen here in part
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -598,13 +600,22 @@ int main()
 		}
 
 		//std::cout << "3\n";
-
 		//button handling
 		if (left_mouse_button_is_down)
 		{
 
-			string index      = main_toolbar.check_click(    (sf::Vector2i)hud_mouse_position);
-			int    index_esto = upper_toolbar.index_by_click((sf::Vector2i)hud_mouse_position);
+			string index;
+			int    index_esto = -1;
+
+			if (!moving_canvas_button && !moving_selection_around)
+			{
+				index      = main_toolbar.check_click(    (sf::Vector2i)hud_mouse_position);
+				index_esto = upper_toolbar.index_by_click((sf::Vector2i)hud_mouse_position);
+			}
+			else
+			{
+
+			}
 
 			//means we've selected something from the toolbar
 			if (!index.empty())
@@ -614,7 +625,7 @@ int main()
 				if (index == "wand_mode")       { selection_mode = 2; }
 				if (index == "similarity_mode") { selection_mode = 3; }
 
-				if (index == "save")
+				if (index == "save" && left_mouse_button_just_down)
 				{ 
 					if (new_canvas.file_route.empty())
 					{
@@ -628,10 +639,14 @@ int main()
 					canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
 				}
 
-				if (index == "open_file")
+				if (index == "open_file" && left_mouse_button_just_down)
 				{
 					std::string to_loaaaad = select_file(true);
-					new_canvas.load_text_file(to_loaaaad);
+
+					if (!to_loaaaad.empty())
+					{
+						new_canvas.load_text_file(to_loaaaad);
+					}
 
 					canvases[active_canvas_index]->file_route  = new_canvas.file_route;
 					canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
@@ -721,6 +736,7 @@ int main()
 			{
 				moving_canvas_button = false;
 				new_canvas.resize(increment_decrement_vector.x, increment_decrement_vector.y);
+				new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 			}
 			if (selection_mode == 0)
 			{
@@ -736,7 +752,6 @@ int main()
 		}
 
 		//std::cout << "4\n";
-
 		//text input management, pretty much it only works when something in the canvas is selected...
 		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed)
 		{
@@ -805,7 +820,6 @@ int main()
 		}
 
 		//std::cout << "5\n";
-
 		//this parts adds usability to the keys in order to move the cursor if it's just one selected
 		if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
 		{
@@ -901,8 +915,6 @@ int main()
 			)
 
 			);
-
-
 		}
 
 
@@ -914,14 +926,15 @@ int main()
 			window.draw(text_consolas); //eeh ?
 
 			//std::cout << "7.0\n";
-			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+			//draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+			//new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+			//new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
+			window.draw(new_canvas.background_lineas);
+			//window.draw(new_canvas.background_lineas, &oil_on_canvas);
 			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.2\n";
-
-
-
-
 			if (moving_selection_around && prev_moving_selection_around)
 			{
 				sf::Vector2i to_insert;
@@ -930,10 +943,6 @@ int main()
 
 				draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
 			}
-
-
-
-
 
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
 			//std::cout << "7.3\n";
