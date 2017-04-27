@@ -419,10 +419,10 @@ void canvas::update_back_lineas(sf::Vector2i cell_size)
 
 		x = (i + 0) * cell_size.x;
 		y = 0;
-		background_lineas[size_y+1+ i*2].position = sf::Vector2f(x, y);
+		background_lineas[((size_y+1)*2) + i*2].position = sf::Vector2f(x, y);
 
 		x = (i + 0) * cell_size.x;
 		y = 1 * size_y * cell_size.y;
-		background_lineas[size_y+1+ i*2 + 1].position = sf::Vector2f(x, y);
+		background_lineas[((size_y+1)*2) + i*2 + 1].position = sf::Vector2f(x, y);
 	}
 }

@@ -73,17 +73,12 @@ std::string select_file(bool filehastoexist)
 
 	optimize the cpu usage... maybe is an issue with the joystick ?
 
-	clean the code of the 1.1.0
-	clean the code of the 1.2.0
-
 	add debug mode
 	find cool use for the enter key
 
 	make center_canvas_in_window() great again, lol
 
 	functionality / tools :
-		
-		shorcuts :P
 		square selection moving when out of boundaries
 		select lines ?
 		add ctrl+z
@@ -116,6 +111,9 @@ std::string select_file(bool filehastoexist)
 			std::cout << "control:" << event.key.control << std::endl;
 			std::cout << "alt:" << event.key.alt << std::endl;
 			std::cout << "shift:" << event.key.shift << std::endl;
+		
+		shorcuts might be executed every frame intead of just in press ?
+		bugs when changing to a different view with ctrl+tab / ctrl+shift+tab
 
 	planing for future shorcuts :
 
@@ -138,6 +136,7 @@ std::string select_file(bool filehastoexist)
 */
 
 /* IMPLENTED / FIXED
+	shorcuts :P
 	drag and drop system
 	'color picker' implemented
 	fix canvas resizing causing issues with te interface
@@ -599,6 +598,128 @@ int main()
 			}
 		}
 
+		//parte en la que revisamos los shorcuts
+		if (true)
+		{
+			//ctrl + tab
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+				)
+			{
+				if (active_canvas_index < canvases.size())
+				{
+					//active_canvas_index+=1;
+
+					canvases[active_canvas_index]->activ_cells.clear();
+					canvases[active_canvas_index]->tmp_activ_cells.clear();
+					canvases[active_canvas_index]->cell_letters.clear();
+
+					canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
+					canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
+					canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
+					canvases[active_canvas_index]->size_x = new_canvas.size_x;
+					canvases[active_canvas_index]->size_y = new_canvas.size_y;
+
+					active_canvas_index = active_canvas_index + 1;
+					new_canvas = *canvases[active_canvas_index];
+				}
+			}
+
+			//ctrl + shift + tab
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)   || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))   &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+				)
+			{
+				if (active_canvas_index > 0)
+				{
+
+					//active_canvas_index-=1;
+
+					canvases[active_canvas_index]->activ_cells.clear();
+					canvases[active_canvas_index]->tmp_activ_cells.clear();
+					canvases[active_canvas_index]->cell_letters.clear();
+
+					canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
+					canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
+					canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
+					canvases[active_canvas_index]->size_x = new_canvas.size_x;
+					canvases[active_canvas_index]->size_y = new_canvas.size_y;
+
+					active_canvas_index = active_canvas_index - 1;
+					new_canvas = *canvases[active_canvas_index];
+
+				}
+			}
+
+			//ctrl + o
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::O))
+				)
+			{
+				std::string to_loaaaad = select_file(true);
+				if (!to_loaaaad.empty())
+				{
+					new_canvas.load_text_file(to_loaaaad);
+				}
+				canvases[active_canvas_index]->file_route  = new_canvas.file_route;
+				canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
+			}
+
+			//ctrl + s
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+				)
+			{
+				if (new_canvas.file_route.empty())
+				{
+					new_canvas.file_route = select_file(false);
+					new_canvas.set_name_from_path(new_canvas.file_route);
+				}
+				new_canvas.save_to(new_canvas.file_route);
+				new_canvas.set_name_from_path(new_canvas.file_route);
+			}
+
+			//ctrl + n
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+				)
+			{
+				selection_mode = 0;
+			}
+
+			//ctrl + r
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+				)
+			{
+				selection_mode = 1;
+			}
+
+			//ctrl + w
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+				)
+			{
+				selection_mode = 2;
+			}
+
+			//ctrl + e
+			if (
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
+				(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+				)
+			{
+				selection_mode = 3;
+			}
+		}
 		//std::cout << "3\n";
 		//button handling
 		if (left_mouse_button_is_down)
@@ -710,7 +831,7 @@ int main()
 					//wand selection mode
 					if (selection_mode == 2 && left_mouse_button_just_down && !moving_canvas_button)
 					{
-					if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || !sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+					if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)))
 					{
 						new_canvas.deselect_all();
 					}
@@ -720,7 +841,7 @@ int main()
 					if (selection_mode == 3 && left_mouse_button_just_down && !moving_canvas_button)
 					{
 					char selecion_character = new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x];
-					if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || !sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+					if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)))
 					{
 						new_canvas.deselect_all();
 					}
@@ -750,7 +871,6 @@ int main()
 			{
 			}
 		}
-
 		//std::cout << "4\n";
 		//text input management, pretty much it only works when something in the canvas is selected...
 		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed)
@@ -926,12 +1046,19 @@ int main()
 			window.draw(text_consolas); //eeh ?
 
 			//std::cout << "7.0\n";
-			//draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-
-			//new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
-			//new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
+			/*
+			new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+			new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
+			new_canvas.translation.translate(displacement_x, displacement_y);
+			new_canvas.translation.transformPoint(displacement_x, displacement_y);
+			window.draw(new_canvas.background_lineas, new_canvas.translation);
+			new_canvas.background_lineas.setPosition(40,40);
+			window.draw(new_canvas.background_lineas, new_canvas.translation);
 			window.draw(new_canvas.background_lineas);
-			//window.draw(new_canvas.background_lineas, &oil_on_canvas);
+			*/
+
+			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
 			//std::cout << "7.1\n";
 			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 			//std::cout << "7.2\n";

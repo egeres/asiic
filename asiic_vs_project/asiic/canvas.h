@@ -33,6 +33,7 @@ public:
 	std::string canvas_name;
 	std::string file_route;
 
+	sf::Transform translation;
 	sf::VertexArray background_lineas;
 
 	std::vector<std::vector<bool> >  activ_cells;
