@@ -98,8 +98,8 @@ std::string select_file(bool filehastoexist)
 		when saving, automatically add ".txt" at the end of the namefile if name is left blank
 
 	menu / interface :
-		create an add button for creating more tabs
-		display square selection size
+		display the active tab
+		display square selection size ?
 		help window ?
 		blinking cursor
 		invert colors option ?
@@ -152,6 +152,8 @@ std::string select_file(bool filehastoexist)
 */
 
 /* IMPLENTED / FIXED
+	create a remove button to close tabs
+	create an add button for creating more tabs
 	shorcuts :P
 	drag and drop system
 	'color picker' implemented
@@ -377,6 +379,146 @@ void draw_text_over_toobox_bottom(sf::RenderWindow& input_window, std::string in
 	input_window.draw(text_obj);
 }
 
+using namespace std;
+
+//view variables
+	int initial_size_x = 1500;
+	int initial_size_y = 900;
+	sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
+	// window.setVerticalSyncEnabled(true);
+	int displacement_x = 350;
+	int displacement_y = 50;
+	int cell_size_x      = 17;
+	int cell_size_y      = 40;
+	float zoom = 1.0;
+	std::string string_cell_upper_toolbox = "";
+
+//tools variables
+	int  selection_mode   = 0;
+	bool selection_value = true;
+	sf::Vector2i square_selection_initial_point;
+	sf::Vector2i square_selection_end_point;
+	bool moving_selection_around = false;
+	bool prev_moving_selection_around = false;
+	sf::Vector2i drag_and_drop_starting_point;
+	sf::Vector2i drag_and_drop_cell_displacement;
+
+//the canvas itself
+	vector<canvas*> canvases;
+	// canvases.push_back(new canvas(40, 15, "unknow"));
+	// canvases.push_back(new canvas(10, 15, "unknow"));
+	int active_canvas_index = 0;
+	canvas new_canvas = canvas(1, 1, "1");
+	// canvas new_canvas = *canvases[active_canvas_index];
+
+//variables for the loop
+	bool out_of_canvas = true;
+	bool left_mouse_button_is_down;
+	bool prev_left_mouse_button_is_down = false;
+	bool prev_any_key_pressed;
+	bool left_mouse_button_just_down;
+	bool left_mouse_button_just_up;
+	bool prev_any_key_is_pressed;
+	sf::Vector2f hud_mouse_position;
+	sf::Vector2f mouse_position;
+	sf::Vector2f prev_mouse_position;
+	sf::Vector2f initial_mouse_position;
+	sf::Vector2i cell_location_vector;
+	sf::Vector2i displacement_v;
+	sf::Vector2i selection_position;
+	sf::Vector2i increment_decrement_vector;
+
+//text item for the GUI system
+	sf::Font font_consolas;
+	// if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
+	sf::Text text_consolas;
+	// text_consolas.setFont(font_consolas);
+	// text_consolas.setCharacterSize(30);
+	// text_consolas.setFillColor(sf::Color::White);
+	sf::Font font_pixel;
+	// if (!font_pixel.loadFromFile("assets/pixel.ttf")) { /* error... */ }
+	sf::Text text_pixel;
+	// text_pixel.setFont(font_pixel);
+	// text_pixel.setCharacterSize(40);
+	// text_pixel.setFillColor(sf::Color::White);
+
+//textures
+	sf::Texture tex_icon_pencil_selection;
+	sf::Texture tex_icon_equal_character_selection;
+	sf::Texture tex_icon_resize;
+	sf::Texture tex_icon_save;
+	sf::Texture tex_icon_square_selection;
+	sf::Texture tex_icon_wand_selection;
+	sf::Texture tex_icon_folder;
+	sf::Texture tex_icon_options;
+	sf::Texture tex_icon_resize_b;
+	sf::Texture tex_icon_spacing;
+	sf::Texture tex_icon_new_tab;
+	sf::Texture tex_icon_close_tab;
+
+//images & sprites
+	sf::Sprite spr_icon_pencil_selection;
+	sf::Sprite spr_icon_equal_character_selection;
+	sf::Sprite spr_icon_resize;
+	sf::Sprite spr_icon_save;
+	sf::Sprite spr_icon_square_selection;
+	sf::Sprite spr_icon_wand_selection;
+	sf::Sprite spr_icon_folder;
+	sf::Sprite spr_icon_options;
+	sf::Sprite spr_icon_resize_b;
+	sf::Sprite spr_icon_spacing;
+	sf::Sprite spr_icon_new_tab;
+	sf::Sprite spr_icon_close_tab;
+
+//sound (yeah, there's sound in this software...)
+	sf::SoundBuffer buffer_minimal_click;
+	// if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
+	sf::Sound sound_minimal_click;
+	// sound_minimal_click.setBuffer(buffer_minimal_click);
+	// sound_minimal_click.setVolume(15);
+
+//upper navigation bar
+	navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
+	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_6on_1", font_pixel, sf::Color(25, 25, 25), 5) );
+	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+	//upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "press3ed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+	//upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_2.txt", "presse3d_button_1", font_pixel, sf::Color(25, 25, 25), 5) );
+	// upper_toolbar.update();
+
+// //canvas button system below
+	int  canvas_button_pos_x = 0;
+	int  canvas_button_pos_y = 0;
+	bool moving_canvas_button = false;
+	button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
+//
+	int button_new_tab_pos_x = 0;
+	int button_new_tab_pos_y = 18;
+	button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
+//
+	int button_close_tab_pos_x = 0;
+	int button_close_tab_pos_y = 18;
+	button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void loop_logic_shorcuts() {
 
 }
@@ -389,96 +531,116 @@ void loop_logic() {
 
 }
 
-void loop_render() {
+void loop_start()
+{
+	// window.setVerticalSyncEnabled(true);
+}
 
+void loop_render()
+{
+	button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
+	button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
+	button_new_tab.update();
+	window.draw(button_new_tab.spr);
+	//
+	// button_close_tab_pos_y = 40;
+	button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
+	button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
+	button_close_tab.update();
+	window.draw(button_close_tab.spr);
+	// selection_value = false;
 }
 
 //main function
 int main()
 {
-	using namespace std;
 
-	//view variables
-		int initial_size_x = 1500;
-		int initial_size_y = 900;
 
-		sf::View view1(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-
-		sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-		sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-
-		sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
+	// //view variables
+	// 	int initial_size_x = 1500;
+	// 	int initial_size_y = 900;
+	//
+	// 	sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	// 	sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	// 	sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+	//
+	// 	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
 		window.setVerticalSyncEnabled(true);
+	//
+	// 	int displacement_x = 350;
+	// 	int displacement_y = 50;
+	// 	int cell_size_x      = 17;
+	// 	int cell_size_y      = 40;
+	// 	float zoom = 1.0;
+	// 	std::string string_cell_upper_toolbox = "";
 
-		int displacement_x = 350;
-		int displacement_y = 50;
-		int cell_size_x      = 17;
-		int cell_size_y      = 40;
-		float zoom = 1.0;
-		std::string string_cell_upper_toolbox = "";
+	loop_start();
 
-	//tools variables
-		int  selection_mode   = 0;
-		bool selection_value = true;
-		sf::Vector2i square_selection_initial_point;
-		sf::Vector2i square_selection_end_point;
-		bool moving_selection_around = false;
-		bool prev_moving_selection_around = false;
-		sf::Vector2i drag_and_drop_starting_point;
-		sf::Vector2i drag_and_drop_cell_displacement;
+	// //tools variables
+	// 	int  selection_mode   = 0;
+	// 	bool selection_value = true;
+	// 	sf::Vector2i square_selection_initial_point;
+	// 	sf::Vector2i square_selection_end_point;
+	// 	bool moving_selection_around = false;
+	// 	bool prev_moving_selection_around = false;
+	// 	sf::Vector2i drag_and_drop_starting_point;
+	// 	sf::Vector2i drag_and_drop_cell_displacement;
 
 	//the canvas itself
-		vector<canvas*> canvases;
+		// vector<canvas*> canvases;
 		canvases.push_back(new canvas(40, 15, "unknow"));
 		canvases.push_back(new canvas(10, 15, "unknow"));
-		int active_canvas_index = 0;
+		// int active_canvas_index = 0;
+		// new_canvas = *canvases[active_canvas_index];
+
+		// int active_canvas_index = 0;
+		// canvas new_canvas;
 		canvas new_canvas = *canvases[active_canvas_index];
 
-	//variables for the loop
-		bool out_of_canvas = true;
-		bool left_mouse_button_is_down;
-		bool prev_left_mouse_button_is_down = false;
-		bool prev_any_key_pressed;
-		bool left_mouse_button_just_down;
-		bool left_mouse_button_just_up;
-		bool prev_any_key_is_pressed;
-		sf::Vector2f hud_mouse_position;
-		sf::Vector2f mouse_position;
-		sf::Vector2f prev_mouse_position;
-		sf::Vector2f initial_mouse_position;
-		sf::Vector2i cell_location_vector;
-		sf::Vector2i displacement_v;
-		sf::Vector2i selection_position;
-		sf::Vector2i increment_decrement_vector;
+	// //variables for the loop
+	// 	bool out_of_canvas = true;
+	// 	bool left_mouse_button_is_down;
+	// 	bool prev_left_mouse_button_is_down = false;
+	// 	bool prev_any_key_pressed;
+	// 	bool left_mouse_button_just_down;
+	// 	bool left_mouse_button_just_up;
+	// 	bool prev_any_key_is_pressed;
+	// 	sf::Vector2f hud_mouse_position;
+	// 	sf::Vector2f mouse_position;
+	// 	sf::Vector2f prev_mouse_position;
+	// 	sf::Vector2f initial_mouse_position;
+	// 	sf::Vector2i cell_location_vector;
+	// 	sf::Vector2i displacement_v;
+	// 	sf::Vector2i selection_position;
+	// 	sf::Vector2i increment_decrement_vector;
 
-	//text item for the GUI system
-		sf::Font font_consolas;
+	// //text item for the GUI system
+		// sf::Font font_consolas;
 		if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
-		sf::Text text_consolas;
+		// sf::Text text_consolas;
 		text_consolas.setFont(font_consolas);
 		text_consolas.setCharacterSize(30);
 		text_consolas.setFillColor(sf::Color::White);
-		sf::Font font_pixel;
+		// sf::Font font_pixel;
 		if (!font_pixel.loadFromFile("assets/pixel.ttf")) { /* error... */ }
-		sf::Text text_pixel;
+		// sf::Text text_pixel;
 		text_pixel.setFont(font_pixel);
 		text_pixel.setCharacterSize(40);
 		text_pixel.setFillColor(sf::Color::White);
 
-	//textures
-		sf::Texture tex_icon_pencil_selection;
-		sf::Texture tex_icon_equal_character_selection;
-		sf::Texture tex_icon_resize;
-		sf::Texture tex_icon_save;
-		sf::Texture tex_icon_square_selection;
-		sf::Texture tex_icon_wand_selection;
-		sf::Texture tex_icon_folder;
-		sf::Texture tex_icon_options;
-		sf::Texture tex_icon_resize_b;
-		sf::Texture tex_icon_spacing;
-		sf::Texture tex_icon_new_tab;
-		sf::Texture tex_icon_close_tab;
-		// sf::Texture oil_on_canvas;
+	// //textures
+	// 	sf::Texture tex_icon_pencil_selection;
+	// 	sf::Texture tex_icon_equal_character_selection;
+	// 	sf::Texture tex_icon_resize;
+	// 	sf::Texture tex_icon_save;
+	// 	sf::Texture tex_icon_square_selection;
+	// 	sf::Texture tex_icon_wand_selection;
+	// 	sf::Texture tex_icon_folder;
+	// 	sf::Texture tex_icon_options;
+	// 	sf::Texture tex_icon_resize_b;
+	// 	sf::Texture tex_icon_spacing;
+	// 	sf::Texture tex_icon_new_tab;
+	// 	sf::Texture tex_icon_close_tab;
 
 	//we load textures
 		if (!tex_icon_pencil_selection.loadFromFile("assets/icon_pencil_selection.png")) {}
@@ -491,23 +653,23 @@ int main()
 		if (!tex_icon_options.loadFromFile("assets/icon_options.png")) {}
 		if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
 		if (!tex_icon_spacing.loadFromFile("assets/icon_alpha_20_60.png")) {}
+		tex_icon_spacing.setSmooth(true);
 		if (!tex_icon_new_tab.loadFromFile("assets/icon_new_tab.png")) {}
 		if (!tex_icon_close_tab.loadFromFile("assets/icon_close_tab.png")) {}
-		// if (!oil_on_canvas.loadFromFile("assets/A29861.jpg")) {}
 
-	//images & sprites
-		sf::Sprite spr_icon_pencil_selection;
-		sf::Sprite spr_icon_equal_character_selection;
-		sf::Sprite spr_icon_resize;
-		sf::Sprite spr_icon_save;
-		sf::Sprite spr_icon_square_selection;
-		sf::Sprite spr_icon_wand_selection;
-		sf::Sprite spr_icon_folder;
-		sf::Sprite spr_icon_options;
-		sf::Sprite spr_icon_resize_b;
-		sf::Sprite spr_icon_spacing;
-		sf::Sprite spr_icon_new_tab;
-		sf::Sprite spr_icon_close_tab;
+	// //images & sprites
+	// 	sf::Sprite spr_icon_pencil_selection;
+	// 	sf::Sprite spr_icon_equal_character_selection;
+	// 	sf::Sprite spr_icon_resize;
+	// 	sf::Sprite spr_icon_save;
+	// 	sf::Sprite spr_icon_square_selection;
+	// 	sf::Sprite spr_icon_wand_selection;
+	// 	sf::Sprite spr_icon_folder;
+	// 	sf::Sprite spr_icon_options;
+	// 	sf::Sprite spr_icon_resize_b;
+	// 	sf::Sprite spr_icon_spacing;
+	// 	sf::Sprite spr_icon_new_tab;
+	// 	sf::Sprite spr_icon_close_tab;
 
 	//we set textures to the sprites
 		spr_icon_pencil_selection.setTexture(          tex_icon_pencil_selection);
@@ -524,14 +686,14 @@ int main()
 		spr_icon_close_tab.setTexture(                 tex_icon_close_tab);
 
 	//sound (yeah, there's sound in this software...)
-		sf::SoundBuffer buffer_minimal_click;
+		// sf::SoundBuffer buffer_minimal_click;
 		if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
-		sf::Sound sound_minimal_click;
+		// sf::Sound sound_minimal_click;
 		sound_minimal_click.setBuffer(buffer_minimal_click);
 		sound_minimal_click.setVolume(15);
 
 	//upper navigation bar
-		navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
+		// navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
 		upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_6on_1", font_pixel, sf::Color(25, 25, 25), 5) );
 		upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
 		//upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "press3ed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
@@ -552,19 +714,21 @@ int main()
 		main_toolbar.update();
 
 	//canvas button system below
-		int  canvas_button_pos_x = 0;
-		int  canvas_button_pos_y = 0;
-		bool moving_canvas_button = false;
-		button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
+		// int  canvas_button_pos_x = 0;
+		// int  canvas_button_pos_y = 0;
+		// bool moving_canvas_button = false;
+		// button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
+		canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
 
+	// int button_new_tab_pos_x = 0;
+	// int button_new_tab_pos_y = 18;
+	// button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
+	button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
 
-	int button_new_tab_pos_x = 0;
-	int button_new_tab_pos_y = 18;
-	button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
-
-	int button_close_tab_pos_x = 0;
-	int button_close_tab_pos_y = 18;
-	button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
+	// int button_close_tab_pos_x = 0;
+	// int button_close_tab_pos_y = 18;
+	// button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
+	button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
 
 	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 
@@ -1201,20 +1365,25 @@ int main()
 
 			std::cout << "adsasdasd" << upper_toolbar.total_size_x;
 
+			loop_render();
+
 			// button_new_tab_pos_x = 10;
 			// button_new_tab_pos_y = 0;
-			button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
-			button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
-			button_new_tab.update();
-			window.draw(button_new_tab.spr);
+			// button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
+			// button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
+			// button_new_tab.update();
+			// window.draw(button_new_tab.spr);
 
 			// button_close_tab_pos_y = 40;
-			button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
-			button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
-			button_close_tab.update();
-			window.draw(button_close_tab.spr);
+			// button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
+			// button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
+			// button_close_tab.update();
+			// window.draw(button_close_tab.spr);
 
 
+
+
+			// X::loop_render();
 
 			//std::cout << "7.7\n";
 			if (!out_of_canvas)

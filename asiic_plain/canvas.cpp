@@ -130,7 +130,7 @@ void canvas::set_square_selection_temporal(sf::Vector2i starting_point, sf::Vect
 	int dif_x = (ending_point.x - starting_point.x);
 	int dif_y = (ending_point.y - starting_point.y);
 
-	//es necesario llamar esto en bucle ? ugh, diría que no...
+	//es necesario llamar esto en bucle ? ugh, dirï¿½a que no...
 	tmp_activ_cells.clear();
 	tmp_activ_cells.resize(size_y, std::vector<short>(size_x, 0));
 
@@ -375,7 +375,7 @@ void canvas::overlay_drag_and_drop(std::vector<std::vector<bool> > input_matrix_
 		{
 
 			if (
-					((i+vec.y >= 0) && (i+vec.y < activ_cells.size())) && 
+					((i+vec.y >= 0) && (i+vec.y < activ_cells.size())) &&
 					((j+vec.x >= 0) && (j+vec.x < activ_cells[0].size()))
 				)
 			{
