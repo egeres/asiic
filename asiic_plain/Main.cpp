@@ -81,12 +81,21 @@ std::string select_file(bool filehastoexist)
 
 	make center_canvas_in_window() great again, lol
 
+	options that should be available to the user :
+		change font
+		default new canvas size
+		mute sound
+		night/day mode
+		remap shorcuts ?
+
 	functionality / tools :
+		options box
 		square selection moving when out of boundaries
 		select lines ?
 		add ctrl+z
 		blinking cursor displace text sideways both left and right ?
 		move selection with arrow keys
+		when saving, automatically add ".txt" at the end of the namefile if name is left blank
 
 	menu / interface :
 		create an add button for creating more tabs
@@ -97,8 +106,12 @@ std::string select_file(bool filehastoexist)
 		right click pie menu ?
 		options menu
 		startup dialog
+		individual camera offset per project tab, right now, if you pan in a project window, that pan offset
+		applies to a different tab
 
 	bugs / improvements:
+		separate main loop in smaller functions
+		if no file is selected when opening the search bar, asiic crashes
 		everything crashes if input file is empty
 		remove the canvas input_value from the function cell_location()
 		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
@@ -364,6 +377,22 @@ void draw_text_over_toobox_bottom(sf::RenderWindow& input_window, std::string in
 	input_window.draw(text_obj);
 }
 
+void loop_logic_shorcuts() {
+
+}
+
+void loop_logic_buttons_clicks() {
+
+}
+
+void loop_logic() {
+
+}
+
+void loop_render() {
+
+}
+
 //main function
 int main()
 {
@@ -378,7 +407,7 @@ int main()
 		sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 		sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 
-		sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.2");
+		sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
 		window.setVerticalSyncEnabled(true);
 
 		int displacement_x = 350;
@@ -447,6 +476,7 @@ int main()
 		sf::Texture tex_icon_options;
 		sf::Texture tex_icon_resize_b;
 		sf::Texture tex_icon_spacing;
+		sf::Texture tex_icon_new_tab;
 		// sf::Texture oil_on_canvas;
 
 	//we load textures
@@ -460,6 +490,7 @@ int main()
 		if (!tex_icon_options.loadFromFile("assets/icon_options.png")) {}
 		if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
 		if (!tex_icon_spacing.loadFromFile("assets/icon_alpha_20_60.png")) {}
+		if (!tex_icon_new_tab.loadFromFile("assets/icon_new_tab.png")) {}
 		// if (!oil_on_canvas.loadFromFile("assets/A29861.jpg")) {}
 
 	//images & sprites
@@ -473,6 +504,7 @@ int main()
 		sf::Sprite spr_icon_options;
 		sf::Sprite spr_icon_resize_b;
 		sf::Sprite spr_icon_spacing;
+		sf::Sprite spr_icon_new_tab;
 
 	//we set textures to the sprites
 		spr_icon_pencil_selection.setTexture(          tex_icon_pencil_selection);
@@ -485,6 +517,7 @@ int main()
 		spr_icon_options.setTexture(                   tex_icon_options);
 		spr_icon_resize_b.setTexture(                  tex_icon_resize_b);
 		spr_icon_spacing.setTexture(                   tex_icon_spacing);
+		spr_icon_new_tab.setTexture(                   tex_icon_new_tab);
 
 	//sound (yeah, there's sound in this software...)
 		sf::SoundBuffer buffer_minimal_click;
@@ -503,15 +536,15 @@ int main()
 
 	//navigation bar
 		navigation_bar_img main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,         "pencil_mode")    );
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,         "square_mode")    );
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,           "wand_mode")      );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,          "pencil_mode")    );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,          "square_mode")    );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,            "wand_mode")      );
 		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_equal_character_selection, "similarity_mode"));
 		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_spacing,""));
 		//main_toolbar.list_of_buttons.push_back( new spacer(sf::Vector2i(15, 1)));
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,                     "save")           );
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                   "open_file")      );
-		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_options,                  "options")        );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_save,                      "save")           );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_folder,                    "open_file")      );
+		main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_options,                   "options")        );
 		main_toolbar.update();
 
 	//canvas button system below
@@ -519,6 +552,12 @@ int main()
 		int  canvas_button_pos_y = 0;
 		bool moving_canvas_button = false;
 		button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
+
+
+	int button_new_tab_pos_x = 0;
+	int button_new_tab_pos_y = 18;
+
+	button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
 
 	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 
@@ -741,6 +780,12 @@ int main()
 
 			}
 
+			// this should activate in case we are just pressing a single button in the viewport
+			if (index.empty())
+			{
+				if (button_new_tab.is_inside( (sf::Vector2i)hud_mouse_position) ) { index = "new_tab"; }
+			}
+
 			//means we've selected something from the toolbar
 			if (!index.empty())
 			{
@@ -774,6 +819,13 @@ int main()
 
 					canvases[active_canvas_index]->file_route  = new_canvas.file_route;
 					canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
+				}
+
+				if (index == "new_tab") {
+					// button_new_tab_pos_y += 10;
+					canvases.push_back(new canvas(45, 17, "unknow"));
+					upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+					upper_toolbar.update();
 				}
 			}
 			//means we've clicked one of the tabs
@@ -1077,6 +1129,7 @@ int main()
 			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
 			//std::cout << "7.3\n";
 			window.draw(canvas_button_image.spr);
+
 			//std::cout << "7.4\n";
 			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
@@ -1089,6 +1142,19 @@ int main()
 			{upper_toolbar.list_of_buttons[i]->str = canvases[i]->canvas_name;}
 			upper_toolbar.update();
 			upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
+
+			std::cout << "adsasdasd" << upper_toolbar.total_size_x;
+
+			// button_new_tab_pos_x = 10;
+			// button_new_tab_pos_y = 0;
+			button_new_tab_pos_x = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
+			button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
+			button_new_tab.update();
+			window.draw(button_new_tab.spr);
+
+
+
+
 			//std::cout << "7.7\n";
 			if (!out_of_canvas)
 			{

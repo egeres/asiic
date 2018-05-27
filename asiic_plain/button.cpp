@@ -27,7 +27,14 @@ bool button_image::is_inside(sf::Vector2i input_vector)
 	}
 	return false;
 }
-
+//updater for this kind of button, because yeah, these buttons can change the text
+void button_image::update()
+{
+	spr.setPosition(pos.x, pos.y);
+	// txt_obj.setString(str);
+	// wh  = sf::Vector2i(txt_obj.getGlobalBounds().width +padding*2, txt_obj.getGlobalBounds().height+padding*2);
+	// background_rectangle.setSize(sf::Vector2f(wh.x, wh.y));
+}
 
 
 //constructor for the smartest kind of button
@@ -246,8 +253,8 @@ void navigation_bar_txt::update()
 		list_of_buttons[i]->update();
 	}
 
-	int total_size_x = 0;
-	int total_size_y = 0;
+	total_size_x = 0;
+	total_size_y = 0;
 
 	for (int i = 0; i < list_of_buttons.size(); i++)
 	{

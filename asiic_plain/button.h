@@ -19,6 +19,7 @@ class button_image : public gui_element
 public:
 	button_image(sf::Vector2i, sf::Sprite, std::string);
 	bool is_inside(sf::Vector2i);
+	void update();
 	sf::Sprite  spr;
 	std::string event_name;
 };
@@ -50,7 +51,7 @@ public:
 	sf::Sound overlay_sound;
 	sf::RectangleShape background_rectangle;
 	std::vector<button_image*> list_of_buttons;
-	std::string alignment;  
+	std::string alignment;
 	std::string disposicion;
 	int padding;
 	int spacing;
@@ -71,9 +72,11 @@ public:
 	sf::Sound overlay_sound;
 	sf::RectangleShape background_rectangle;
 	std::vector<button_text*> list_of_buttons;
-	std::string alignment;  
+	std::string alignment;
 	std::string disposicion;
 	int padding;
 	int spacing;
+	int total_size_x;
+	int total_size_y;
 	std::string overlayed_button;
 };
