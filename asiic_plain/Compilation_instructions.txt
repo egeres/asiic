@@ -1,0 +1,9 @@
+
+To compile Asiic in Windows use MinGW 7.3.0
+
+
+g++ Main.cpp canvas.cpp button.cpp
+ -ID:\Users\Rafael\Desktop\dolor\prueba_2\SFML-2.5.0\include
+ -LD:\Users\Rafael\Desktop\dolor\prueba_2\SFML-2.5.0\lib
+ -v -mwindows
+ -lsfml-graphics -lsfml-window -lsfml-system -lsfml‑audio -lsfml‑main
