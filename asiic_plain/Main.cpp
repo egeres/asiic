@@ -430,7 +430,7 @@ int main()
 	//the canvas itself
 		vector<canvas*> canvases;
 		canvases.push_back(new canvas(40, 15, "unknow"));
-		canvases.push_back(new canvas(45, 17, "unknow"));
+		canvases.push_back(new canvas(10, 15, "unknow"));
 		int active_canvas_index = 0;
 		canvas new_canvas = *canvases[active_canvas_index];
 
@@ -477,6 +477,7 @@ int main()
 		sf::Texture tex_icon_resize_b;
 		sf::Texture tex_icon_spacing;
 		sf::Texture tex_icon_new_tab;
+		sf::Texture tex_icon_close_tab;
 		// sf::Texture oil_on_canvas;
 
 	//we load textures
@@ -491,6 +492,7 @@ int main()
 		if (!tex_icon_resize_b.loadFromFile("assets/icon_resize_b.png")) {}
 		if (!tex_icon_spacing.loadFromFile("assets/icon_alpha_20_60.png")) {}
 		if (!tex_icon_new_tab.loadFromFile("assets/icon_new_tab.png")) {}
+		if (!tex_icon_close_tab.loadFromFile("assets/icon_close_tab.png")) {}
 		// if (!oil_on_canvas.loadFromFile("assets/A29861.jpg")) {}
 
 	//images & sprites
@@ -505,6 +507,7 @@ int main()
 		sf::Sprite spr_icon_resize_b;
 		sf::Sprite spr_icon_spacing;
 		sf::Sprite spr_icon_new_tab;
+		sf::Sprite spr_icon_close_tab;
 
 	//we set textures to the sprites
 		spr_icon_pencil_selection.setTexture(          tex_icon_pencil_selection);
@@ -518,6 +521,7 @@ int main()
 		spr_icon_resize_b.setTexture(                  tex_icon_resize_b);
 		spr_icon_spacing.setTexture(                   tex_icon_spacing);
 		spr_icon_new_tab.setTexture(                   tex_icon_new_tab);
+		spr_icon_close_tab.setTexture(                 tex_icon_close_tab);
 
 	//sound (yeah, there's sound in this software...)
 		sf::SoundBuffer buffer_minimal_click;
@@ -556,8 +560,11 @@ int main()
 
 	int button_new_tab_pos_x = 0;
 	int button_new_tab_pos_y = 18;
-
 	button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
+
+	int button_close_tab_pos_x = 0;
+	int button_close_tab_pos_y = 18;
+	button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
 
 	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 
@@ -783,7 +790,8 @@ int main()
 			// this should activate in case we are just pressing a single button in the viewport
 			if (index.empty())
 			{
-				if (button_new_tab.is_inside( (sf::Vector2i)hud_mouse_position) ) { index = "new_tab"; }
+				if (button_new_tab.is_inside(   (sf::Vector2i)hud_mouse_position) ) { index =   "new_tab"; }
+				if (button_close_tab.is_inside( (sf::Vector2i)hud_mouse_position) ) { index = "close_tab"; }
 			}
 
 			//means we've selected something from the toolbar
@@ -826,6 +834,54 @@ int main()
 					canvases.push_back(new canvas(45, 17, "unknow"));
 					upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
 					upper_toolbar.update();
+
+
+
+					// canvases[active_canvas_index]->activ_cells.clear();
+					// canvases[active_canvas_index]->tmp_activ_cells.clear();
+					// canvases[active_canvas_index]->cell_letters.clear();
+					//
+					// canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
+					// canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
+					// canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
+					// canvases[active_canvas_index]->size_x = new_canvas.size_x;
+					// canvases[active_canvas_index]->size_y = new_canvas.size_y;
+
+					// active_canvas_index = index_esto;
+					// new_canvas = *canvases[active_canvas_index];
+
+					active_canvas_index = canvases.size() - 1;
+					new_canvas = *canvases[active_canvas_index];
+				}
+
+				if (index == "close_tab") {
+
+					if (canvases.size() > 1)
+					{
+
+						canvases.erase(canvases.begin() + active_canvas_index );
+						upper_toolbar.list_of_buttons.erase( upper_toolbar.list_of_buttons.begin() + active_canvas_index );
+						upper_toolbar.update();
+
+						if ((active_canvas_index + 1) > canvases.size())
+						{
+							active_canvas_index -= 1;
+						}
+
+						// canvases[active_canvas_index]->activ_cells.clear();
+						// canvases[active_canvas_index]->tmp_activ_cells.clear();
+						// canvases[active_canvas_index]->cell_letters.clear();
+						//
+						// canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
+						// canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
+						// canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
+						// canvases[active_canvas_index]->size_x = new_canvas.size_x;
+						// canvases[active_canvas_index]->size_y = new_canvas.size_y;
+
+						// active_canvas_index = index_esto;
+						new_canvas = *canvases[active_canvas_index];
+					}
+
 				}
 			}
 			//means we've clicked one of the tabs
@@ -1147,11 +1203,16 @@ int main()
 
 			// button_new_tab_pos_x = 10;
 			// button_new_tab_pos_y = 0;
-			button_new_tab_pos_x = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
+			button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
 			button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
 			button_new_tab.update();
 			window.draw(button_new_tab.spr);
 
+			// button_close_tab_pos_y = 40;
+			button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
+			button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
+			button_close_tab.update();
+			window.draw(button_close_tab.spr);
 
 
 
