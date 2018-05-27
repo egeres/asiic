@@ -504,7 +504,7 @@ navigation_bar_img main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)w
 	int button_close_tab_pos_y = 18;
 	button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
 
-
+sf::Event event;
 
 
 
@@ -937,6 +937,55 @@ void loop_start() {
 }
 
 void loop_render() {
+
+	window.setView(canvas_view);
+	window.draw(text_consolas); //eeh ?
+
+	//std::cout << "7.0\n";
+	/*
+	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+	new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
+	new_canvas.translation.translate(displacement_x, displacement_y);
+	new_canvas.translation.transformPoint(displacement_x, displacement_y);
+	window.draw(new_canvas.background_lineas, new_canvas.translation);
+	new_canvas.background_lineas.setPosition(40,40);
+	window.draw(new_canvas.background_lineas, new_canvas.translation);
+	window.draw(new_canvas.background_lineas);
+	*/
+
+	draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+	//std::cout << "7.1\n";
+	draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+	//std::cout << "7.2\n";
+	if (moving_selection_around && prev_moving_selection_around)
+	{
+		sf::Vector2i to_insert;
+		to_insert = ((sf::Vector2i)drag_and_drop_starting_point + (sf::Vector2i)mouse_position);
+		to_insert = ((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point);
+
+		draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
+	}
+
+	draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
+	//std::cout << "7.3\n";
+	window.draw(canvas_button_image.spr);
+
+	//std::cout << "7.4\n";
+	if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
+	window.setView(hud_view);
+
+	//std::cout << "7.5\n";
+	main_toolbar.render( window, (sf::Vector2i)hud_mouse_position);
+	//std::cout << "7.6\n";
+	for (int i = 0; i< upper_toolbar.list_of_buttons.size();i++)
+	{upper_toolbar.list_of_buttons[i]->str = canvases[i]->canvas_name;}
+	upper_toolbar.update();
+	upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
+
+	std::cout << "adsasdasd" << upper_toolbar.total_size_x;
+
 	button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
 	button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
 	button_new_tab.update();
@@ -950,6 +999,120 @@ void loop_render() {
 	// selection_value = false;
 }
 
+void loop_text_input_management() {
+	//std::cout << "4\n";
+	//text input management, pretty much it only works when something in the canvas is selected...
+	if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed)
+	{
+		if (event.text.unicode < 256)
+		{
+			//in case we have more than just one cell selected
+			if (new_canvas.return_ammount_selected() > 1)
+			{
+				char value_to_add = ' ';
+				if(event.text.unicode != '\b') { value_to_add = event.text.unicode; }
+				new_canvas.set_char_selected(value_to_add);
+				new_canvas.deselect_all();
+			}
+
+			//in case we have just one cell selected
+			else if (new_canvas.return_ammount_selected() == 1)
+			{
+				char value_to_add = ' ';
+
+				if(event.text.unicode == '\b')
+				{
+					new_canvas.set_char_selected(value_to_add);
+					selection_position = new_canvas.first_position_selection();
+					new_canvas.deselect_all();
+					new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
+				}
+				else
+				{
+					selection_position = new_canvas.first_position_selection();
+
+					if (selection_position.y+1 < new_canvas.size_y)
+					{
+						if (selection_position.x+1 < new_canvas.size_x)
+						{
+							value_to_add = event.text.unicode;
+							new_canvas.set_char_selected(value_to_add);
+							new_canvas.deselect_all();
+							new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+						}
+						else
+						{
+							value_to_add = event.text.unicode;
+							new_canvas.set_char_selected(value_to_add);
+							new_canvas.deselect_all();
+							new_canvas.activ_cells[selection_position.y + 1][0] = true;
+						}
+					}
+					else
+					{
+						if (selection_position.x+1 < new_canvas.size_x)
+						{
+							value_to_add = event.text.unicode;
+							new_canvas.set_char_selected(value_to_add);
+							new_canvas.deselect_all();
+							new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+						}
+						else
+						{
+							value_to_add = event.text.unicode;
+							new_canvas.set_char_selected(value_to_add);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void loop_arrow_movement_management() {
+	//this parts adds usability to the keys in order to move the cursor if it's just one selected
+	if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
+	{
+		if (new_canvas.return_ammount_selected() == 1)
+		{
+			selection_position = new_canvas.first_position_selection();
+
+			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Left ))
+			{
+				if (selection_position.x > 0)
+				{
+					new_canvas.deselect_all();
+					new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
+				}
+			}
+			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Right ))
+			{
+				if (selection_position.x < new_canvas.size_x - 1)
+				{
+					new_canvas.deselect_all();
+					new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+				}
+			}
+			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Up ))
+			{
+				if (selection_position.y > 0)
+				{
+					new_canvas.deselect_all();
+					new_canvas.activ_cells[selection_position.y - 1][selection_position.x] = true;
+				}
+			}
+			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Down ))
+			{
+				if (selection_position.y < new_canvas.size_y - 1)
+				{
+					new_canvas.deselect_all();
+					new_canvas.activ_cells[selection_position.y + 1][selection_position.x] = true;
+				}
+			}
+		}
+	}
+}
+
 int main()
 {
 	loop_start();
@@ -957,8 +1120,6 @@ int main()
     //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
 	{
-
-		//std::cout << "0\n";
 
 		clock.restart();
 
@@ -1018,7 +1179,7 @@ int main()
 
 		//std::cout << "2\n";
 		//events happen here in part
-		sf::Event event;
+
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -1027,132 +1188,23 @@ int main()
 			}
 			else if (event.type == sf::Event::MouseWheelMoved)
 			{
-				zoom += (event.mouseWheel.delta * 0.1);
-				//view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
-				canvas_view.setSize(sf::Vector2f(window.getSize().x * zoom, window.getSize().y * zoom));
+				if ((zoom + event.mouseWheel.delta * 0.1) > 0.2)
+				{
+					zoom += (event.mouseWheel.delta * 0.1);
+					//view1.setSize(initial_size_x * zoom, initial_size_y * zoom);
+					canvas_view.setSize(sf::Vector2f(window.getSize().x * zoom, window.getSize().y * zoom));
+				}
 			}
 		}
 
 		loop_logic_shorcuts();
 
-		//parte en la que revisamos los shorcuts
-
-		//std::cout << "3\n";
-		//button handling
-
 		loop_logic_buttons_clicks();
 
+		loop_text_input_management();
 
-		//std::cout << "4\n";
-		//text input management, pretty much it only works when something in the canvas is selected...
-		if ((event.type == sf::Event::TextEntered) && !prev_any_key_pressed)
-		{
-			if (event.text.unicode < 256)
-			{
-				//in case we have more than just one cell selected
-				if (new_canvas.return_ammount_selected() > 1)
-				{
-					char value_to_add = ' ';
-					if(event.text.unicode != '\b') { value_to_add = event.text.unicode; }
-					new_canvas.set_char_selected(value_to_add);
-					new_canvas.deselect_all();
-				}
+		loop_arrow_movement_management();
 
-				//in case we have just one cell selected
-				else if (new_canvas.return_ammount_selected() == 1)
-				{
-					char value_to_add = ' ';
-
-					if(event.text.unicode == '\b')
-					{
-						new_canvas.set_char_selected(value_to_add);
-						selection_position = new_canvas.first_position_selection();
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
-					}
-					else
-					{
-						selection_position = new_canvas.first_position_selection();
-
-						if (selection_position.y+1 < new_canvas.size_y)
-						{
-							if (selection_position.x+1 < new_canvas.size_x)
-							{
-								value_to_add = event.text.unicode;
-								new_canvas.set_char_selected(value_to_add);
-								new_canvas.deselect_all();
-								new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
-							}
-							else
-							{
-								value_to_add = event.text.unicode;
-								new_canvas.set_char_selected(value_to_add);
-								new_canvas.deselect_all();
-								new_canvas.activ_cells[selection_position.y + 1][0] = true;
-							}
-						}
-						else
-						{
-							if (selection_position.x+1 < new_canvas.size_x)
-							{
-								value_to_add = event.text.unicode;
-								new_canvas.set_char_selected(value_to_add);
-								new_canvas.deselect_all();
-								new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
-							}
-							else
-							{
-								value_to_add = event.text.unicode;
-								new_canvas.set_char_selected(value_to_add);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		//std::cout << "5\n";
-		//this parts adds usability to the keys in order to move the cursor if it's just one selected
-		if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
-		{
-			if (new_canvas.return_ammount_selected() == 1)
-			{
-				selection_position = new_canvas.first_position_selection();
-
-				if (sf::Keyboard::isKeyPressed( sf::Keyboard::Left ))
-				{
-					if (selection_position.x > 0)
-					{
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
-					}
-				}
-				if (sf::Keyboard::isKeyPressed( sf::Keyboard::Right ))
-				{
-					if (selection_position.x < new_canvas.size_x - 1)
-					{
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
-					}
-				}
-				if (sf::Keyboard::isKeyPressed( sf::Keyboard::Up ))
-				{
-					if (selection_position.y > 0)
-					{
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y - 1][selection_position.x] = true;
-					}
-				}
-				if (sf::Keyboard::isKeyPressed( sf::Keyboard::Down ))
-				{
-					if (selection_position.y < new_canvas.size_y - 1)
-					{
-						new_canvas.deselect_all();
-						new_canvas.activ_cells[selection_position.y + 1][selection_position.x] = true;
-					}
-				}
-			}
-		}
 		//system to pan the canvas around the view OR move a selection around
 		moving_selection_around = false;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
@@ -1174,7 +1226,6 @@ int main()
 			new_canvas.deselect_all();
 		}
 
-		//std::cout << "6\n";
 		//we take care of the selection thing
 		if (moving_selection_around && !prev_moving_selection_around)
 		{
@@ -1214,53 +1265,7 @@ int main()
 		//the drawing part of the loop, currently everything is drawn in the 'windows' object
 		window.clear();
 
-			window.setView(canvas_view);
-			window.draw(text_consolas); //eeh ?
 
-			//std::cout << "7.0\n";
-			/*
-			new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
-			new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
-			new_canvas.translation.translate(displacement_x, displacement_y);
-			new_canvas.translation.transformPoint(displacement_x, displacement_y);
-			window.draw(new_canvas.background_lineas, new_canvas.translation);
-			new_canvas.background_lineas.setPosition(40,40);
-			window.draw(new_canvas.background_lineas, new_canvas.translation);
-			window.draw(new_canvas.background_lineas);
-			*/
-
-			draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-
-			//std::cout << "7.1\n";
-			draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-			//std::cout << "7.2\n";
-			if (moving_selection_around && prev_moving_selection_around)
-			{
-				sf::Vector2i to_insert;
-				to_insert = ((sf::Vector2i)drag_and_drop_starting_point + (sf::Vector2i)mouse_position);
-				to_insert = ((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point);
-
-				draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
-			}
-
-			draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
-			//std::cout << "7.3\n";
-			window.draw(canvas_button_image.spr);
-
-			//std::cout << "7.4\n";
-			if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
-
-			window.setView(hud_view);
-
-			//std::cout << "7.5\n";
-			main_toolbar.render( window, (sf::Vector2i)hud_mouse_position);
-			//std::cout << "7.6\n";
-			for (int i = 0; i< upper_toolbar.list_of_buttons.size();i++)
-			{upper_toolbar.list_of_buttons[i]->str = canvases[i]->canvas_name;}
-			upper_toolbar.update();
-			upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
-
-			std::cout << "adsasdasd" << upper_toolbar.total_size_x;
 
 			loop_render();
 
