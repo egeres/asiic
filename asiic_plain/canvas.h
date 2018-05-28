@@ -28,6 +28,8 @@ public:
 	void equal_character_selection(char);
 	void set_name_from_path(std::string);
 	int size_x, size_y;
+	sf::Vector2i displacement;
+	float canvas_zoom;
 
 	void overlay_drag_and_drop(std::vector<std::vector<bool> >, std::vector<std::vector<char> >, sf::Vector2i);
 	std::string canvas_name;

@@ -24,6 +24,9 @@ canvas::canvas(int input_size_x, int input_size_y, std::string input_name)
 	activ_cells.resize(    input_size_y, vector<bool>( input_size_x, false));
 	tmp_activ_cells.resize(input_size_y, vector<short>(input_size_x, 0));
 	cell_letters.resize(   input_size_y, vector<char>( input_size_x, ' '));
+
+	displacement = sf::Vector2i(350, 50);
+	canvas_zoom = 1.0;
 }
 //turns all the activ_cells in false
 void canvas::deselect_all()

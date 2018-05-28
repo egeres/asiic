@@ -790,9 +790,15 @@ void loop_logic_buttons_clicks() {
 			canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
 			canvases[active_canvas_index]->size_x = working_canvas.size_x;
 			canvases[active_canvas_index]->size_y = working_canvas.size_y;
+			canvases[active_canvas_index]->displacement = sf::Vector2i(displacement_x, displacement_y);
+			canvases[active_canvas_index]->canvas_zoom  = zoom;
 
 			active_canvas_index = index_esto;
-			working_canvas = *canvases[active_canvas_index];
+			working_canvas      = *canvases[active_canvas_index];
+			displacement_x      = working_canvas.displacement.x;
+			displacement_y      = working_canvas.displacement.y;
+			zoom                = working_canvas.canvas_zoom;
+			canvas_view.setSize(sf::Vector2f(window.getSize().x * zoom, window.getSize().y * zoom));
 		}
 		//in case we just clicked the movement button a sound is played
 		else if (canvas_button_image.is_inside((sf::Vector2i)mouse_position) && left_mouse_button_just_down)
@@ -886,7 +892,7 @@ void loop_logic() {
 void loop_awake() {
 	window.setVerticalSyncEnabled(true);
 	canvases.push_back(new canvas(40, 15, "unknow"));
-	canvases.push_back(new canvas(10, 15, "unknow"));
+	// canvases.push_back(new canvas(10, 15, "unknow"));
 	working_canvas = *canvases[active_canvas_index];
 
 	if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
@@ -939,7 +945,7 @@ void loop_awake() {
 
 	//upper navigation bar
 	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_6on_1", font_pixel, sf::Color(25, 25, 25), 5) );
-	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
+	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
 	upper_toolbar.update();
 
 	//navigation bar
@@ -1306,7 +1312,6 @@ int main()
 
 	sf::Clock clock;while (window.isOpen())
 	{
-
 		clock.restart();
 
 		loop_start();
