@@ -114,9 +114,6 @@ std::string select_file(bool filehastoexist)
 		applies to a different tab
 
 	bugs / improvements:
-		separate main loop in smaller functions
-		if no file is selected when opening the search bar, asiic crashes
-		everything crashes if input file is empty
 		remove the canvas input_value from the function cell_location()
 		size of upper toolbar can sometimes be incorrect ? or.. the buttons ? dunno
 		there's a quintillion of warnings about possible data loss...
@@ -145,6 +142,7 @@ std::string select_file(bool filehastoexist)
 		ctrl + s           | save
 		ctrl + o           | open
 
+		ctrl + a           | select all
 		ctrl + n           | pencil mode
 		ctrl + r           | rectangle mode
 		ctrl + w           | wand mode
@@ -156,6 +154,9 @@ std::string select_file(bool filehastoexist)
 */
 
 /* IMPLENTED / FIXED
+	separate main loop in smaller functions
+	if no file is selected when opening the search bar, asiic crashes
+	everything crashes if input file is empty
 	create a remove button to close tabs
 	create an add button for creating more tabs
 	shorcuts :P
@@ -449,6 +450,7 @@ sf::Texture tex_icon_resize_b;
 sf::Texture tex_icon_spacing;
 sf::Texture tex_icon_new_tab;
 sf::Texture tex_icon_close_tab;
+sf::Texture tex_icon_selected;
 
 // Images & sprites
 sf::Sprite spr_icon_pencil_selection;
@@ -463,6 +465,7 @@ sf::Sprite spr_icon_resize_b;
 sf::Sprite spr_icon_spacing;
 sf::Sprite spr_icon_new_tab;
 sf::Sprite spr_icon_close_tab;
+sf::Sprite spr_icon_selected;
 
 // Sound (yeah, there's sound in this software...)
 sf::SoundBuffer buffer_minimal_click;
@@ -664,13 +667,25 @@ void loop_logic_buttons_clicks() {
 				if (working_canvas.file_route.empty())
 				{
 					working_canvas.file_route = select_file(false);
+					// working_canvas.set_name_from_path(working_canvas.file_route);
+
+					if (!working_canvas.file_route.empty() && working_canvas.file_route != "")
+					{
+						working_canvas.set_name_from_path(working_canvas.file_route);
+						working_canvas.save_to(working_canvas.file_route);
+						working_canvas.set_name_from_path(working_canvas.file_route);
+
+						canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+						canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
+					}
+				}
+				else
+				{
+					working_canvas.save_to(working_canvas.file_route);
 					working_canvas.set_name_from_path(working_canvas.file_route);
 				}
-				working_canvas.save_to(working_canvas.file_route);
-				working_canvas.set_name_from_path(working_canvas.file_route);
-
-				canvases[active_canvas_index]->file_route  = working_canvas.file_route;
-				canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
+				// canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+				// canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
 			}
 
 			if (index == "open_file" && left_mouse_button_just_down)
@@ -874,6 +889,7 @@ void loop_awake() {
 	tex_icon_spacing.setSmooth(true);
 	if (!tex_icon_new_tab.loadFromFile("assets/icon_new_tab.png")) {}
 	if (!tex_icon_close_tab.loadFromFile("assets/icon_close_tab.png")) {}
+	if (!tex_icon_selected.loadFromFile("assets/icon_selected.png")) {}
 
 	//we set textures to the sprites
 	spr_icon_pencil_selection.setTexture(          tex_icon_pencil_selection);
@@ -888,6 +904,7 @@ void loop_awake() {
 	spr_icon_spacing.setTexture(                   tex_icon_spacing);
 	spr_icon_new_tab.setTexture(                   tex_icon_new_tab);
 	spr_icon_close_tab.setTexture(                 tex_icon_close_tab);
+	spr_icon_selected.setTexture(                  tex_icon_selected);
 
 	//sound (yeah, there's sound in this software...)
 	if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
@@ -963,6 +980,12 @@ void loop_render() {
 	upper_toolbar.update();
 	upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
 
+	int tmp_x;
+	tmp_x  = upper_toolbar.list_of_buttons[active_canvas_index]->pos.x;
+	tmp_x += (upper_toolbar.list_of_buttons[active_canvas_index]->wh.x) / 2;
+	tmp_x -= 8;
+	spr_icon_selected.setPosition(tmp_x, 68);
+	window.draw(spr_icon_selected);
 
 	button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
 	button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
