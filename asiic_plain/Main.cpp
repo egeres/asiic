@@ -93,6 +93,7 @@ std::string select_file(bool filehastoexist)
 		remap shorcuts ?
 
 	functionality / tools :
+		ruler ?
 		options box
 		square selection moving when out of boundaries
 		select lines ?
@@ -139,6 +140,7 @@ std::string select_file(bool filehastoexist)
 		ctrl + t           | new tab
 
 		ctrl + s           | save
+		ctrl + s + shift   | save as
 		ctrl + o           | open
 
 		ctrl + a           | select all
@@ -155,6 +157,7 @@ std::string select_file(bool filehastoexist)
 */
 
 /* IMPLENTED / FIXED
+	antialiasing + icon
 	semi-fixed ctrl+tab / ctrl+shift+tab shorcuts
 	display the active tab
 	separate main loop in smaller functions
@@ -579,13 +582,6 @@ sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 
-sf::ContextSettings settings;
-// settings.depthBits = 24;
-// settings.stencilBits = 8;
-// settings.antialiasingLevel = 4;
-// settings.majorVersion = 3;
-// settings.minorVersion = 0;
-
 sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC", sf::Style::Default, sf::ContextSettings(0,0,8,2,0) );
 string string_cell_upper_toolbox = "";
 bool   showing_options_menu      = false;
@@ -672,6 +668,8 @@ sf::Sprite spr_icon_options_menu;
 // Sound (yeah, there's sound in this software...)
 sf::SoundBuffer buffer_minimal_click;
 sf::Sound       sound_minimal_click;
+// sound_minimal_click.setBuffer(buffer_minimal_click);
+// sound_minimal_click.setVolume(15);
 
 // Navigation bars
 navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
@@ -1123,8 +1121,6 @@ void loop_logic() {
 
 void loop_awake() {
 
-	// settings.antialiasingLevel = 8;
-	// window = window(sf::VideoMode(1500, 900), "ASIIC", sf::Style::Default, settings);
 	window.setVerticalSyncEnabled(true);
 	window.setIcon( asiic_icon.width,  asiic_icon.height,  asiic_icon.pixel_data );
 	canvases.push_back(new canvas(40, 15, "unknow"));
@@ -1180,12 +1176,12 @@ void loop_awake() {
 	sound_minimal_click.setVolume(15);
 
 	//upper navigation bar
+	upper_toolbar = navigation_bar_txt(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
 	upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_6on_1", font_pixel, sf::Color(25, 25, 25), 5) );
-	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
 	upper_toolbar.update();
 
 	//navigation bar
-	// main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
+	main_toolbar = navigation_bar_img(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_pencil_selection,          "pencil_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_square_selection,          "square_mode")    );
 	main_toolbar.list_of_buttons.push_back( new button_image(sf::Vector2i(1, 1),spr_icon_wand_selection,            "wand_mode")      );
