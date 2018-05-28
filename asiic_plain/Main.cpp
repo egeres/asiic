@@ -102,7 +102,6 @@ std::string select_file(bool filehastoexist)
 		when saving, automatically add ".txt" at the end of the namefile if name is left blank
 
 	menu / interface :
-		display the active tab
 		display square selection size ?
 		help window ?
 		blinking cursor
@@ -143,6 +142,7 @@ std::string select_file(bool filehastoexist)
 		ctrl + o           | open
 
 		ctrl + a           | select all
+		ctrl + i           | invert selection ?
 		ctrl + n           | pencil mode
 		ctrl + r           | rectangle mode
 		ctrl + w           | wand mode
@@ -154,6 +154,8 @@ std::string select_file(bool filehastoexist)
 */
 
 /* IMPLENTED / FIXED
+	semi-fixed ctrl+tab / ctrl+shift+tab shorcuts
+	display the active tab
 	separate main loop in smaller functions
 	if no file is selected when opening the search bar, asiic crashes
 	everything crashes if input file is empty
@@ -397,7 +399,8 @@ sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
 sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
-std::string string_cell_upper_toolbox = "";
+string string_cell_upper_toolbox = "";
+bool   showing_options_menu      = false;
 
 // Tools variables
 int  selection_mode   = 0;
@@ -431,6 +434,13 @@ sf::Vector2i displacement_v;
 sf::Vector2i selection_position;
 sf::Vector2i increment_decrement_vector;
 
+bool prev_pressing_Lctrl  = false;
+bool prev_pressing_Rctrl  = false;
+bool prev_pressing_Tab    = false;
+bool prev_pressing_Lshift = false;
+bool prev_pressing_Rshift = false;
+bool prev_index           = false;
+
 // Text item for the GUI system
 sf::Font font_consolas;
 sf::Text text_consolas;
@@ -451,6 +461,7 @@ sf::Texture tex_icon_spacing;
 sf::Texture tex_icon_new_tab;
 sf::Texture tex_icon_close_tab;
 sf::Texture tex_icon_selected;
+sf::Texture tex_icon_options_menu;
 
 // Images & sprites
 sf::Sprite spr_icon_pencil_selection;
@@ -466,6 +477,7 @@ sf::Sprite spr_icon_spacing;
 sf::Sprite spr_icon_new_tab;
 sf::Sprite spr_icon_close_tab;
 sf::Sprite spr_icon_selected;
+sf::Sprite spr_icon_options_menu;
 
 // Sound (yeah, there's sound in this software...)
 sf::SoundBuffer buffer_minimal_click;
@@ -492,16 +504,19 @@ button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x
 sf::Event event;
 sf::Time elapsed;
 
+
 void loop_logic_shorcuts() {
 	if (true)
 	{
 		//ctrl + tab
 		if (
 			(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
-			(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+			(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab)) &&
+			(!prev_pressing_Lctrl || !prev_pressing_Rctrl) &&
+			(!prev_pressing_Tab)
 			)
 		{
-			if (active_canvas_index < canvases.size())
+			if ((active_canvas_index + 1) < canvases.size())
 			{
 				//active_canvas_index+=1;
 
@@ -524,7 +539,10 @@ void loop_logic_shorcuts() {
 		if (
 			(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) &&
 			(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)   || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))   &&
-			(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+			(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab)) &&
+			(!prev_pressing_Lctrl  || !prev_pressing_Rctrl ) &&
+			(!prev_pressing_Lshift || !prev_pressing_Rshift) &&
+			(!prev_pressing_Tab)
 			)
 		{
 			if (active_canvas_index > 0)
@@ -654,16 +672,21 @@ void loop_logic_buttons_clicks() {
 			if (button_close_tab.is_inside( (sf::Vector2i)hud_mouse_position) ) { index = "close_tab"; }
 		}
 
+		// if (index.empty()) {prev_index = false;} else {prev_index = true;}
+
 		//means we've selected something from the toolbar
-		if (!index.empty())
+		if (!index.empty() && left_mouse_button_just_down)
 		{
-			if (index == "pencil_mode")     { selection_mode = 0; }
-			if (index == "square_mode")     { selection_mode = 1; }
-			if (index == "wand_mode")       { selection_mode = 2; }
+			if (index == "pencil_mode"    ) { selection_mode = 0; }
+			if (index == "square_mode"    ) { selection_mode = 1; }
+			if (index == "wand_mode"      ) { selection_mode = 2; }
 			if (index == "similarity_mode") { selection_mode = 3; }
 
-			if (index == "save" && left_mouse_button_just_down)
-			{
+			if (index == "options") {
+				showing_options_menu = !showing_options_menu;
+			}
+
+			if (index == "save") {
 				if (working_canvas.file_route.empty())
 				{
 					working_canvas.file_route = select_file(false);
@@ -688,8 +711,7 @@ void loop_logic_buttons_clicks() {
 				// canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
 			}
 
-			if (index == "open_file" && left_mouse_button_just_down)
-			{
+			if (index == "open_file") {
 				std::string to_loaaaad = select_file(true);
 
 				if (!to_loaaaad.empty())
@@ -833,6 +855,7 @@ void loop_logic_buttons_clicks() {
 			}
 
 		}
+		if (!index.empty()) {}
 	}
 	if (left_mouse_button_just_up)
 	{
@@ -890,6 +913,7 @@ void loop_awake() {
 	if (!tex_icon_new_tab.loadFromFile("assets/icon_new_tab.png")) {}
 	if (!tex_icon_close_tab.loadFromFile("assets/icon_close_tab.png")) {}
 	if (!tex_icon_selected.loadFromFile("assets/icon_selected.png")) {}
+	if (!tex_icon_options_menu.loadFromFile("assets/icon_options_menu.png")) {}
 
 	//we set textures to the sprites
 	spr_icon_pencil_selection.setTexture(          tex_icon_pencil_selection);
@@ -905,6 +929,8 @@ void loop_awake() {
 	spr_icon_new_tab.setTexture(                   tex_icon_new_tab);
 	spr_icon_close_tab.setTexture(                 tex_icon_close_tab);
 	spr_icon_selected.setTexture(                  tex_icon_selected);
+	spr_icon_options_menu.setTexture(              tex_icon_options_menu);
+	spr_icon_options_menu.setPosition(0, 98);
 
 	//sound (yeah, there's sound in this software...)
 	if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
@@ -1019,6 +1045,14 @@ void loop_render() {
 		std::string texti_pixel;
 		texti_pixel = main_toolbar.check_click((sf::Vector2i)hud_mouse_position);
 		draw_text_over_toobox_bottom(window, texti_pixel, text_pixel, font_pixel);
+	}
+
+	if (showing_options_menu)
+	{
+		tmp_x = window.getSize().x/2 - (spr_icon_options_menu.getGlobalBounds().width / 2);
+		// tmp_x = window.getSize().x/2;
+		spr_icon_options_menu.setPosition(tmp_x, 98);
+		window.draw(spr_icon_options_menu);
 	}
 
 	window.display();
@@ -1205,6 +1239,13 @@ void loop_end() {
 	prev_left_mouse_button_is_down = left_mouse_button_is_down;
 	prev_any_key_pressed           = (event.type == sf::Event::TextEntered);
 	prev_any_key_is_pressed        = (event.type == sf::Event::KeyPressed);
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) { prev_pressing_Lctrl  = true;} else { prev_pressing_Lctrl  = false;}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)) { prev_pressing_Rctrl  = true;} else { prev_pressing_Rctrl  = false;}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab     )) { prev_pressing_Tab    = true;} else { prev_pressing_Tab    = false;}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift  )) { prev_pressing_Lshift = true;} else { prev_pressing_Lshift = false;}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift  )) { prev_pressing_Rshift = true;} else { prev_pressing_Rshift = false;}
+
 }
 
 void loop_move_selection() {
