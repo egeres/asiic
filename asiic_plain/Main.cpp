@@ -41,28 +41,32 @@ std::string select_file(bool filehastoexist)
 	}
 	else
 	{
-		// All this stuff below is to tell you exactly how you messed up above.
-		// Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
-		switch (CommDlgExtendedError())
-		{
-		case CDERR_DIALOGFAILURE: std::cout << "CDERR_DIALOGFAILURE\n";   break;
-		case CDERR_FINDRESFAILURE: std::cout << "CDERR_FINDRESFAILURE\n";  break;
-		case CDERR_INITIALIZATION: std::cout << "CDERR_INITIALIZATION\n";  break;
-		case CDERR_LOADRESFAILURE: std::cout << "CDERR_LOADRESFAILURE\n";  break;
-		case CDERR_LOADSTRFAILURE: std::cout << "CDERR_LOADSTRFAILURE\n";  break;
-		case CDERR_LOCKRESFAILURE: std::cout << "CDERR_LOCKRESFAILURE\n";  break;
-		case CDERR_MEMALLOCFAILURE: std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
-		case CDERR_MEMLOCKFAILURE: std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
-		case CDERR_NOHINSTANCE: std::cout << "CDERR_NOHINSTANCE\n";     break;
-		case CDERR_NOHOOK: std::cout << "CDERR_NOHOOK\n";          break;
-		case CDERR_NOTEMPLATE: std::cout << "CDERR_NOTEMPLATE\n";      break;
-		case CDERR_STRUCTSIZE: std::cout << "CDERR_STRUCTSIZE\n";      break;
-		case FNERR_BUFFERTOOSMALL: std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
-		case FNERR_INVALIDFILENAME: std::cout << "FNERR_INVALIDFILENAME\n"; break;
-		case FNERR_SUBCLASSFAILURE: std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
-		default: std::cout << "You cancelled.\n";
-		}
+		return "";
 	}
+	// else
+	// {
+	// 	// All this stuff below is to tell you exactly how you messed up above.
+	// 	// Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
+	// 	switch (CommDlgExtendedError())
+	// 	{
+	// 	case CDERR_DIALOGFAILURE: std::cout << "CDERR_DIALOGFAILURE\n";   break;
+	// 	case CDERR_FINDRESFAILURE: std::cout << "CDERR_FINDRESFAILURE\n";  break;
+	// 	case CDERR_INITIALIZATION: std::cout << "CDERR_INITIALIZATION\n";  break;
+	// 	case CDERR_LOADRESFAILURE: std::cout << "CDERR_LOADRESFAILURE\n";  break;
+	// 	case CDERR_LOADSTRFAILURE: std::cout << "CDERR_LOADSTRFAILURE\n";  break;
+	// 	case CDERR_LOCKRESFAILURE: std::cout << "CDERR_LOCKRESFAILURE\n";  break;
+	// 	case CDERR_MEMALLOCFAILURE: std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
+	// 	case CDERR_MEMLOCKFAILURE: std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
+	// 	case CDERR_NOHINSTANCE: std::cout << "CDERR_NOHINSTANCE\n";     break;
+	// 	case CDERR_NOHOOK: std::cout << "CDERR_NOHOOK\n";          break;
+	// 	case CDERR_NOTEMPLATE: std::cout << "CDERR_NOTEMPLATE\n";      break;
+	// 	case CDERR_STRUCTSIZE: std::cout << "CDERR_STRUCTSIZE\n";      break;
+	// 	case FNERR_BUFFERTOOSMALL: std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
+	// 	case FNERR_INVALIDFILENAME: std::cout << "FNERR_INVALIDFILENAME\n"; break;
+	// 	case FNERR_SUBCLASSFAILURE: std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
+	// 	default: std::cout << "You cancelled.\n";
+	// 	}
+	// }
 
 	// return "e - e";
 }
@@ -186,7 +190,6 @@ std::string select_file(bool filehastoexist)
 	text size corrected
 */
 
-
 //used in order to convert ints to strings.
 namespace patch
 {
@@ -261,14 +264,14 @@ void draw_selected(sf::RenderWindow& input_window, canvas input_canvas, int disp
 
 
 //function which draws... things ? I need to sleep more, lol
-void draw_drag_and_drop(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y, sf::Vector2i displacement_from_mouses, canvas new_canvas)
+void draw_drag_and_drop(sf::RenderWindow& input_window, canvas input_canvas, int disp_x, int disp_y, int spacing_x, int spacing_y, sf::Vector2i displacement_from_mouses, canvas working_canvas)
 {
 	//just to crearify, tmp_activ_cells is a temporal matrix created by the square selection
 	//input_canvas.overlay_short_matrix(input_canvas.tmp_activ_cells);
 	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(29, 29, 29));
 
-	sf::Vector2i temporal_disp = cell_location(displacement_from_mouses , new_canvas, spacing_x, spacing_y);
+	sf::Vector2i temporal_disp = cell_location(displacement_from_mouses , working_canvas, spacing_x, spacing_y);
 	//std::cout << temporal_disp.x << " _ " << temporal_disp.y << "    "
 	//<< displacement_from_mouses.x << " _ " << displacement_from_mouses.y << "\n";
 
@@ -303,7 +306,7 @@ void draw_characters(sf::RenderWindow& input_window, canvas input_canvas, int di
 }
 
 //draw the new canvas when resizing
-void draw_new_canvas_size(sf::RenderWindow& input_window, canvas input_canvas, sf::Vector2i increment_decrement_vector, int disp_x, int disp_y, int spacing_x, int spacing_y)
+void draw_working_canvas_size(sf::RenderWindow& input_window, canvas input_canvas, sf::Vector2i increment_decrement_vector, int disp_x, int disp_y, int spacing_x, int spacing_y)
 {
 	sf::RectangleShape rectangle(sf::Vector2f(spacing_x, spacing_y));
 	rectangle.setFillColor(sf::Color(25, 25, 25, 50));
@@ -381,145 +384,110 @@ void draw_text_over_toobox_bottom(sf::RenderWindow& input_window, std::string in
 
 using namespace std;
 
-//view variables
-	int initial_size_x = 1500;
-	int initial_size_y = 900;
-	sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-	sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-	sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
-	sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
-	// window.setVerticalSyncEnabled(true);
-	int displacement_x = 350;
-	int displacement_y = 50;
-	int cell_size_x      = 17;
-	int cell_size_y      = 40;
-	float zoom = 1.0;
-	std::string string_cell_upper_toolbox = "";
+// View variables
+int initial_size_x = 1500;
+int initial_size_y = 900;
+int displacement_x = 350;
+int displacement_y = 50;
+int cell_size_x    = 17;
+int cell_size_y    = 40;
+float zoom         = 1.0;
+sf::View view1(      sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+sf::View hud_view(   sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+sf::View canvas_view(sf::FloatRect(0, 0, initial_size_x, initial_size_y));
+sf::RenderWindow window(sf::VideoMode(1500, 900), "ASIIC editor 0.2.3");
+std::string string_cell_upper_toolbox = "";
 
-//tools variables
-	int  selection_mode   = 0;
-	bool selection_value = true;
-	sf::Vector2i square_selection_initial_point;
-	sf::Vector2i square_selection_end_point;
-	bool moving_selection_around = false;
-	bool prev_moving_selection_around = false;
-	sf::Vector2i drag_and_drop_starting_point;
-	sf::Vector2i drag_and_drop_cell_displacement;
+// Tools variables
+int  selection_mode   = 0;
+bool selection_value  = true;
+sf::Vector2i square_selection_initial_point;
+sf::Vector2i square_selection_end_point;
+bool moving_selection_around      = false;
+bool prev_moving_selection_around = false;
+sf::Vector2i drag_and_drop_starting_point;
+sf::Vector2i drag_and_drop_cell_displacement;
 
-//the canvas itself
-	vector<canvas*> canvases;
-	// canvases.push_back(new canvas(40, 15, "unknow"));
-	// canvases.push_back(new canvas(10, 15, "unknow"));
-	int active_canvas_index = 0;
-	canvas new_canvas = canvas(1, 1, "1");
-	// canvas new_canvas = *canvases[active_canvas_index];
+// The canvas itself
+vector<canvas*> canvases;
+int active_canvas_index = 0;
+canvas working_canvas       = canvas(1, 1, "1");
 
-//variables for the loop
-	bool out_of_canvas = true;
-	bool left_mouse_button_is_down;
-	bool prev_left_mouse_button_is_down = false;
-	bool prev_any_key_pressed;
-	bool left_mouse_button_just_down;
-	bool left_mouse_button_just_up;
-	bool prev_any_key_is_pressed;
-	sf::Vector2f hud_mouse_position;
-	sf::Vector2f mouse_position;
-	sf::Vector2f prev_mouse_position;
-	sf::Vector2f initial_mouse_position;
-	sf::Vector2i cell_location_vector;
-	sf::Vector2i displacement_v;
-	sf::Vector2i selection_position;
-	sf::Vector2i increment_decrement_vector;
+// Variables for the loop
+bool out_of_canvas = true;
+bool left_mouse_button_is_down;
+bool prev_left_mouse_button_is_down = false;
+bool prev_any_key_pressed;
+bool left_mouse_button_just_down;
+bool left_mouse_button_just_up;
+bool prev_any_key_is_pressed;
+sf::Vector2f hud_mouse_position;
+sf::Vector2f mouse_position;
+sf::Vector2f prev_mouse_position;
+sf::Vector2f initial_mouse_position;
+sf::Vector2i cell_location_vector;
+sf::Vector2i displacement_v;
+sf::Vector2i selection_position;
+sf::Vector2i increment_decrement_vector;
 
-//text item for the GUI system
-	sf::Font font_consolas;
-	// if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
-	sf::Text text_consolas;
-	// text_consolas.setFont(font_consolas);
-	// text_consolas.setCharacterSize(30);
-	// text_consolas.setFillColor(sf::Color::White);
-	sf::Font font_pixel;
-	// if (!font_pixel.loadFromFile("assets/pixel.ttf")) { /* error... */ }
-	sf::Text text_pixel;
-	// text_pixel.setFont(font_pixel);
-	// text_pixel.setCharacterSize(40);
-	// text_pixel.setFillColor(sf::Color::White);
+// Text item for the GUI system
+sf::Font font_consolas;
+sf::Text text_consolas;
+sf::Font font_pixel;
+sf::Text text_pixel;
 
-//textures
-	sf::Texture tex_icon_pencil_selection;
-	sf::Texture tex_icon_equal_character_selection;
-	sf::Texture tex_icon_resize;
-	sf::Texture tex_icon_save;
-	sf::Texture tex_icon_square_selection;
-	sf::Texture tex_icon_wand_selection;
-	sf::Texture tex_icon_folder;
-	sf::Texture tex_icon_options;
-	sf::Texture tex_icon_resize_b;
-	sf::Texture tex_icon_spacing;
-	sf::Texture tex_icon_new_tab;
-	sf::Texture tex_icon_close_tab;
+// Textures
+sf::Texture tex_icon_pencil_selection;
+sf::Texture tex_icon_equal_character_selection;
+sf::Texture tex_icon_resize;
+sf::Texture tex_icon_save;
+sf::Texture tex_icon_square_selection;
+sf::Texture tex_icon_wand_selection;
+sf::Texture tex_icon_folder;
+sf::Texture tex_icon_options;
+sf::Texture tex_icon_resize_b;
+sf::Texture tex_icon_spacing;
+sf::Texture tex_icon_new_tab;
+sf::Texture tex_icon_close_tab;
 
-//images & sprites
-	sf::Sprite spr_icon_pencil_selection;
-	sf::Sprite spr_icon_equal_character_selection;
-	sf::Sprite spr_icon_resize;
-	sf::Sprite spr_icon_save;
-	sf::Sprite spr_icon_square_selection;
-	sf::Sprite spr_icon_wand_selection;
-	sf::Sprite spr_icon_folder;
-	sf::Sprite spr_icon_options;
-	sf::Sprite spr_icon_resize_b;
-	sf::Sprite spr_icon_spacing;
-	sf::Sprite spr_icon_new_tab;
-	sf::Sprite spr_icon_close_tab;
+// Images & sprites
+sf::Sprite spr_icon_pencil_selection;
+sf::Sprite spr_icon_equal_character_selection;
+sf::Sprite spr_icon_resize;
+sf::Sprite spr_icon_save;
+sf::Sprite spr_icon_square_selection;
+sf::Sprite spr_icon_wand_selection;
+sf::Sprite spr_icon_folder;
+sf::Sprite spr_icon_options;
+sf::Sprite spr_icon_resize_b;
+sf::Sprite spr_icon_spacing;
+sf::Sprite spr_icon_new_tab;
+sf::Sprite spr_icon_close_tab;
 
-//sound (yeah, there's sound in this software...)
-	sf::SoundBuffer buffer_minimal_click;
-	// if(!buffer_minimal_click.loadFromFile("assets/minimal_clickb.wav")) {}
-	sf::Sound sound_minimal_click;
-	// sound_minimal_click.setBuffer(buffer_minimal_click);
-	// sound_minimal_click.setVolume(15);
+// Sound (yeah, there's sound in this software...)
+sf::SoundBuffer buffer_minimal_click;
+sf::Sound       sound_minimal_click;
 
-//upper navigation bar
-	navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
-	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "unknow", "pressed_6on_1", font_pixel, sf::Color(25, 25, 25), 5) );
-	// upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_0.txt", "pr6essed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
-	//upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_1.txt", "press3ed_button_1", font_pixel, sf::Color(25, 25, 25), 5));
-	//upper_toolbar.list_of_buttons.push_back( new button_text(sf::Vector2i(1, 1), "file_text_2.txt", "presse3d_button_1", font_pixel, sf::Color(25, 25, 25), 5) );
-	// upper_toolbar.update();
-
+// Navigation bars
+navigation_bar_txt upper_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02), sf::Color(13, 13, 13), 8, 8, "centered", "horizontal", sound_minimal_click);
 navigation_bar_img main_toolbar(sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15), sf::Color(13, 13, 13), 5, 5, "centered", "horizontal", sound_minimal_click);
 
-// //canvas button system below
-	int  canvas_button_pos_x = 0;
-	int  canvas_button_pos_y = 0;
-	bool moving_canvas_button = false;
-	button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
-//
-	int button_new_tab_pos_x = 0;
-	int button_new_tab_pos_y = 18;
-	button_image button_new_tab = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
-//
-	int button_close_tab_pos_x = 0;
-	int button_close_tab_pos_y = 18;
-	button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
+// Viewport individual buttons below
+int  canvas_button_pos_x         = 0;
+int  canvas_button_pos_y         = 0;
+bool moving_canvas_button        = false;
+button_image canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
 
+int button_new_tab_pos_x      = 0;
+int button_new_tab_pos_y      = 18;
+button_image button_new_tab   = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
+int button_close_tab_pos_x    = 0;
+int button_close_tab_pos_y    = 18;
+button_image button_close_tab = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
+
+// Others
 sf::Event event;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+sf::Time elapsed;
 
 void loop_logic_shorcuts() {
 	if (true)
@@ -538,14 +506,14 @@ void loop_logic_shorcuts() {
 				canvases[active_canvas_index]->tmp_activ_cells.clear();
 				canvases[active_canvas_index]->cell_letters.clear();
 
-				canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
-				canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
-				canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
-				canvases[active_canvas_index]->size_x = new_canvas.size_x;
-				canvases[active_canvas_index]->size_y = new_canvas.size_y;
+				canvases[active_canvas_index]->activ_cells = working_canvas.activ_cells;
+				canvases[active_canvas_index]->tmp_activ_cells = working_canvas.tmp_activ_cells;
+				canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
+				canvases[active_canvas_index]->size_x = working_canvas.size_x;
+				canvases[active_canvas_index]->size_y = working_canvas.size_y;
 
 				active_canvas_index = active_canvas_index + 1;
-				new_canvas = *canvases[active_canvas_index];
+				working_canvas = *canvases[active_canvas_index];
 			}
 		}
 
@@ -565,14 +533,14 @@ void loop_logic_shorcuts() {
 				canvases[active_canvas_index]->tmp_activ_cells.clear();
 				canvases[active_canvas_index]->cell_letters.clear();
 
-				canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
-				canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
-				canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
-				canvases[active_canvas_index]->size_x = new_canvas.size_x;
-				canvases[active_canvas_index]->size_y = new_canvas.size_y;
+				canvases[active_canvas_index]->activ_cells = working_canvas.activ_cells;
+				canvases[active_canvas_index]->tmp_activ_cells = working_canvas.tmp_activ_cells;
+				canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
+				canvases[active_canvas_index]->size_x = working_canvas.size_x;
+				canvases[active_canvas_index]->size_y = working_canvas.size_y;
 
 				active_canvas_index = active_canvas_index - 1;
-				new_canvas = *canvases[active_canvas_index];
+				working_canvas = *canvases[active_canvas_index];
 
 			}
 		}
@@ -586,10 +554,10 @@ void loop_logic_shorcuts() {
 			std::string to_loaaaad = select_file(true);
 			if (!to_loaaaad.empty())
 			{
-				new_canvas.load_text_file(to_loaaaad);
+				working_canvas.load_text_file(to_loaaaad);
 			}
-			canvases[active_canvas_index]->file_route  = new_canvas.file_route;
-			canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
+			canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+			canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
 		}
 
 		//ctrl + s
@@ -598,13 +566,26 @@ void loop_logic_shorcuts() {
 			(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			)
 		{
-			if (new_canvas.file_route.empty())
+			if (working_canvas.file_route.empty())
 			{
-				new_canvas.file_route = select_file(false);
-				new_canvas.set_name_from_path(new_canvas.file_route);
+				working_canvas.file_route = select_file(false);
+
+				if (!working_canvas.file_route.empty() && working_canvas.file_route != "")
+				{
+					working_canvas.set_name_from_path(working_canvas.file_route);
+					working_canvas.save_to(working_canvas.file_route);
+					working_canvas.set_name_from_path(working_canvas.file_route);
+
+					canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+					canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
+				}
 			}
-			new_canvas.save_to(new_canvas.file_route);
-			new_canvas.set_name_from_path(new_canvas.file_route);
+			else if (false)
+			{
+				working_canvas.save_to(working_canvas.file_route);
+				working_canvas.set_name_from_path(working_canvas.file_route);
+			}
+
 		}
 
 		//ctrl + n
@@ -680,16 +661,16 @@ void loop_logic_buttons_clicks() {
 
 			if (index == "save" && left_mouse_button_just_down)
 			{
-				if (new_canvas.file_route.empty())
+				if (working_canvas.file_route.empty())
 				{
-					new_canvas.file_route = select_file(false);
-					new_canvas.set_name_from_path(new_canvas.file_route);
+					working_canvas.file_route = select_file(false);
+					working_canvas.set_name_from_path(working_canvas.file_route);
 				}
-				new_canvas.save_to(new_canvas.file_route);
-				new_canvas.set_name_from_path(new_canvas.file_route);
+				working_canvas.save_to(working_canvas.file_route);
+				working_canvas.set_name_from_path(working_canvas.file_route);
 
-				canvases[active_canvas_index]->file_route  = new_canvas.file_route;
-				canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
+				canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+				canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
 			}
 
 			if (index == "open_file" && left_mouse_button_just_down)
@@ -698,11 +679,11 @@ void loop_logic_buttons_clicks() {
 
 				if (!to_loaaaad.empty())
 				{
-					new_canvas.load_text_file(to_loaaaad);
+					working_canvas.load_text_file(to_loaaaad);
 				}
 
-				canvases[active_canvas_index]->file_route  = new_canvas.file_route;
-				canvases[active_canvas_index]->canvas_name = new_canvas.canvas_name;
+				canvases[active_canvas_index]->file_route  = working_canvas.file_route;
+				canvases[active_canvas_index]->canvas_name = working_canvas.canvas_name;
 			}
 
 			if (index == "new_tab") {
@@ -717,17 +698,17 @@ void loop_logic_buttons_clicks() {
 				// canvases[active_canvas_index]->tmp_activ_cells.clear();
 				// canvases[active_canvas_index]->cell_letters.clear();
 				//
-				// canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
-				// canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
-				// canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
-				// canvases[active_canvas_index]->size_x = new_canvas.size_x;
-				// canvases[active_canvas_index]->size_y = new_canvas.size_y;
+				// canvases[active_canvas_index]->activ_cells = working_canvas.activ_cells;
+				// canvases[active_canvas_index]->tmp_activ_cells = working_canvas.tmp_activ_cells;
+				// canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
+				// canvases[active_canvas_index]->size_x = working_canvas.size_x;
+				// canvases[active_canvas_index]->size_y = working_canvas.size_y;
 
 				// active_canvas_index = index_esto;
-				// new_canvas = *canvases[active_canvas_index];
+				// working_canvas = *canvases[active_canvas_index];
 
 				active_canvas_index = canvases.size() - 1;
-				new_canvas = *canvases[active_canvas_index];
+				working_canvas = *canvases[active_canvas_index];
 			}
 
 			if (index == "close_tab") {
@@ -748,14 +729,14 @@ void loop_logic_buttons_clicks() {
 					// canvases[active_canvas_index]->tmp_activ_cells.clear();
 					// canvases[active_canvas_index]->cell_letters.clear();
 					//
-					// canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
-					// canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
-					// canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
-					// canvases[active_canvas_index]->size_x = new_canvas.size_x;
-					// canvases[active_canvas_index]->size_y = new_canvas.size_y;
+					// canvases[active_canvas_index]->activ_cells = working_canvas.activ_cells;
+					// canvases[active_canvas_index]->tmp_activ_cells = working_canvas.tmp_activ_cells;
+					// canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
+					// canvases[active_canvas_index]->size_x = working_canvas.size_x;
+					// canvases[active_canvas_index]->size_y = working_canvas.size_y;
 
 					// active_canvas_index = index_esto;
-					new_canvas = *canvases[active_canvas_index];
+					working_canvas = *canvases[active_canvas_index];
 				}
 
 			}
@@ -767,14 +748,14 @@ void loop_logic_buttons_clicks() {
 			canvases[active_canvas_index]->tmp_activ_cells.clear();
 			canvases[active_canvas_index]->cell_letters.clear();
 
-			canvases[active_canvas_index]->activ_cells = new_canvas.activ_cells;
-			canvases[active_canvas_index]->tmp_activ_cells = new_canvas.tmp_activ_cells;
-			canvases[active_canvas_index]->cell_letters = new_canvas.cell_letters;
-			canvases[active_canvas_index]->size_x = new_canvas.size_x;
-			canvases[active_canvas_index]->size_y = new_canvas.size_y;
+			canvases[active_canvas_index]->activ_cells = working_canvas.activ_cells;
+			canvases[active_canvas_index]->tmp_activ_cells = working_canvas.tmp_activ_cells;
+			canvases[active_canvas_index]->cell_letters = working_canvas.cell_letters;
+			canvases[active_canvas_index]->size_x = working_canvas.size_x;
+			canvases[active_canvas_index]->size_y = working_canvas.size_y;
 
 			active_canvas_index = index_esto;
-			new_canvas = *canvases[active_canvas_index];
+			working_canvas = *canvases[active_canvas_index];
 		}
 		//in case we just clicked the movement button a sound is played
 		else if (canvas_button_image.is_inside((sf::Vector2i)mouse_position) && left_mouse_button_just_down)
@@ -788,7 +769,7 @@ void loop_logic_buttons_clicks() {
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
 			{
-				new_canvas.set_char_selected(new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x]);
+				working_canvas.set_char_selected(working_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x]);
 			}
 			else
 			{
@@ -796,13 +777,13 @@ void loop_logic_buttons_clicks() {
 				if (left_mouse_button_just_down)
 				{
 					//unnecesary violence
-					selection_value = !new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x];
+					selection_value = !working_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x];
 				}
 				//pencil toggle selection
 				if (selection_mode == 0 && !moving_canvas_button)
 				{
 				//stuff
-				new_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x] = selection_value;
+				working_canvas.activ_cells[cell_location_vector.y][cell_location_vector.x] = selection_value;
 				}
 				//square toggle selection mode
 				if (selection_mode == 1 && !moving_canvas_button)
@@ -813,26 +794,26 @@ void loop_logic_buttons_clicks() {
 					square_selection_end_point     = cell_location_vector;
 				}
 				square_selection_end_point = cell_location_vector;
-				new_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
+				working_canvas.set_square_selection_temporal(square_selection_initial_point, square_selection_end_point, selection_value);
 				}
 				//wand selection mode
 				if (selection_mode == 2 && left_mouse_button_just_down && !moving_canvas_button)
 				{
 				if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)))
 				{
-					new_canvas.deselect_all();
+					working_canvas.deselect_all();
 				}
-				new_canvas.select_bucket(cell_location_vector);
+				working_canvas.select_bucket(cell_location_vector);
 				}
 				//wand selection mode
 				if (selection_mode == 3 && left_mouse_button_just_down && !moving_canvas_button)
 				{
-				char selecion_character = new_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x];
+				char selecion_character = working_canvas.cell_letters[cell_location_vector.y][cell_location_vector.x];
 				if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)))
 				{
-					new_canvas.deselect_all();
+					working_canvas.deselect_all();
 				}
-				new_canvas.equal_character_selection(selecion_character);
+				working_canvas.equal_character_selection(selecion_character);
 				}
 			}
 
@@ -843,16 +824,16 @@ void loop_logic_buttons_clicks() {
 		if (moving_canvas_button)
 		{
 			moving_canvas_button = false;
-			new_canvas.resize(increment_decrement_vector.x, increment_decrement_vector.y);
-			new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+			working_canvas.resize(increment_decrement_vector.x, increment_decrement_vector.y);
+			working_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 		}
 		if (selection_mode == 0)
 		{
 		}
 		if (selection_mode == 1)
 		{
-			new_canvas.overlay_short_matrix(new_canvas.tmp_activ_cells);
-			new_canvas.clear_short_matrix();
+			working_canvas.overlay_short_matrix(working_canvas.tmp_activ_cells);
+			working_canvas.clear_short_matrix();
 		}
 		if (selection_mode == 2)
 		{
@@ -864,11 +845,11 @@ void loop_logic() {
 
 }
 
-void loop_start() {
+void loop_awake() {
 	window.setVerticalSyncEnabled(true);
 	canvases.push_back(new canvas(40, 15, "unknow"));
 	canvases.push_back(new canvas(10, 15, "unknow"));
-	new_canvas = *canvases[active_canvas_index];
+	working_canvas = *canvases[active_canvas_index];
 
 	if (!font_consolas.loadFromFile("assets/consolas.ttf")) { /* error... */ }
 	text_consolas.setFont(font_consolas);
@@ -933,70 +914,91 @@ void loop_start() {
 	canvas_button_image = button_image(sf::Vector2i(canvas_button_pos_x, canvas_button_pos_y), spr_icon_resize_b, "resize");
 	button_new_tab      = button_image(sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y), spr_icon_new_tab, "new_tab" );
 	button_close_tab    = button_image(sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y), spr_icon_close_tab, "close_tab" );
-	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+	working_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
 }
 
 void loop_render() {
 
+	window.clear();
 	window.setView(canvas_view);
 	window.draw(text_consolas); //eeh ?
 
 	//std::cout << "7.0\n";
 	/*
-	new_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
-	new_canvas.background_lineas.setPosition(displacement_x, displacement_y);
-	new_canvas.translation.translate(displacement_x, displacement_y);
-	new_canvas.translation.transformPoint(displacement_x, displacement_y);
-	window.draw(new_canvas.background_lineas, new_canvas.translation);
-	new_canvas.background_lineas.setPosition(40,40);
-	window.draw(new_canvas.background_lineas, new_canvas.translation);
-	window.draw(new_canvas.background_lineas);
+	working_canvas.update_back_lineas(sf::Vector2i(cell_size_x,cell_size_y));
+	working_canvas.background_lineas.setPosition(displacement_x, displacement_y);
+	working_canvas.translation.translate(displacement_x, displacement_y);
+	working_canvas.translation.transformPoint(displacement_x, displacement_y);
+	window.draw(working_canvas.background_lineas, working_canvas.translation);
+	working_canvas.background_lineas.setPosition(40,40);
+	window.draw(working_canvas.background_lineas, working_canvas.translation);
+	window.draw(working_canvas.background_lineas);
 	*/
 
-	draw_grid(      window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+	draw_grid(      window, working_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
-	//std::cout << "7.1\n";
-	draw_selected(  window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
-	//std::cout << "7.2\n";
+	draw_selected(  window, working_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y);
+
 	if (moving_selection_around && prev_moving_selection_around)
 	{
 		sf::Vector2i to_insert;
 		to_insert = ((sf::Vector2i)drag_and_drop_starting_point + (sf::Vector2i)mouse_position);
 		to_insert = ((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point);
 
-		draw_drag_and_drop(window, new_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, new_canvas);
+		draw_drag_and_drop(window, working_canvas, displacement_x, displacement_y, cell_size_x, cell_size_y, to_insert, working_canvas);
 	}
 
-	draw_characters(window, new_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
-	//std::cout << "7.3\n";
+	draw_characters(window, working_canvas, displacement_x + 10, displacement_y, cell_size_x, cell_size_y, text_consolas);
+
 	window.draw(canvas_button_image.spr);
 
-	//std::cout << "7.4\n";
-	if (moving_canvas_button) draw_new_canvas_size(window, new_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
+	if (moving_canvas_button) draw_working_canvas_size(window, working_canvas, increment_decrement_vector, displacement_x, displacement_y, cell_size_x, cell_size_y);
 
 	window.setView(hud_view);
 
-	//std::cout << "7.5\n";
 	main_toolbar.render( window, (sf::Vector2i)hud_mouse_position);
-	//std::cout << "7.6\n";
+
 	for (int i = 0; i< upper_toolbar.list_of_buttons.size();i++)
 	{upper_toolbar.list_of_buttons[i]->str = canvases[i]->canvas_name;}
 	upper_toolbar.update();
 	upper_toolbar.render(window, (sf::Vector2i)hud_mouse_position);
 
-	std::cout << "adsasdasd" << upper_toolbar.total_size_x;
 
 	button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
 	button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
 	button_new_tab.update();
 	window.draw(button_new_tab.spr);
-	//
-	// button_close_tab_pos_y = 40;
+
 	button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
 	button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
 	button_close_tab.update();
 	window.draw(button_close_tab.spr);
 	// selection_value = false;
+
+	if (!out_of_canvas)
+	{
+		string_cell_upper_toolbox = "";
+		string_cell_upper_toolbox += "<";
+		string_cell_upper_toolbox += patch::to_string(cell_location_vector.x);
+		string_cell_upper_toolbox += " ";
+		string_cell_upper_toolbox += patch::to_string(cell_location_vector.y);
+		string_cell_upper_toolbox += ">";
+	}
+	else
+	{
+		string_cell_upper_toolbox = "< >";
+	}
+
+	draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
+
+	if (main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "clicked the toolbar...")
+	{
+		std::string texti_pixel;
+		texti_pixel = main_toolbar.check_click((sf::Vector2i)hud_mouse_position);
+		draw_text_over_toobox_bottom(window, texti_pixel, text_pixel, font_pixel);
+	}
+
+	window.display();
 }
 
 void loop_text_input_management() {
@@ -1007,60 +1009,60 @@ void loop_text_input_management() {
 		if (event.text.unicode < 256)
 		{
 			//in case we have more than just one cell selected
-			if (new_canvas.return_ammount_selected() > 1)
+			if (working_canvas.return_ammount_selected() > 1)
 			{
 				char value_to_add = ' ';
 				if(event.text.unicode != '\b') { value_to_add = event.text.unicode; }
-				new_canvas.set_char_selected(value_to_add);
-				new_canvas.deselect_all();
+				working_canvas.set_char_selected(value_to_add);
+				working_canvas.deselect_all();
 			}
 
 			//in case we have just one cell selected
-			else if (new_canvas.return_ammount_selected() == 1)
+			else if (working_canvas.return_ammount_selected() == 1)
 			{
 				char value_to_add = ' ';
 
 				if(event.text.unicode == '\b')
 				{
-					new_canvas.set_char_selected(value_to_add);
-					selection_position = new_canvas.first_position_selection();
-					new_canvas.deselect_all();
-					new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
+					working_canvas.set_char_selected(value_to_add);
+					selection_position = working_canvas.first_position_selection();
+					working_canvas.deselect_all();
+					working_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
 				}
 				else
 				{
-					selection_position = new_canvas.first_position_selection();
+					selection_position = working_canvas.first_position_selection();
 
-					if (selection_position.y+1 < new_canvas.size_y)
+					if (selection_position.y+1 < working_canvas.size_y)
 					{
-						if (selection_position.x+1 < new_canvas.size_x)
+						if (selection_position.x+1 < working_canvas.size_x)
 						{
 							value_to_add = event.text.unicode;
-							new_canvas.set_char_selected(value_to_add);
-							new_canvas.deselect_all();
-							new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+							working_canvas.set_char_selected(value_to_add);
+							working_canvas.deselect_all();
+							working_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
 						}
 						else
 						{
 							value_to_add = event.text.unicode;
-							new_canvas.set_char_selected(value_to_add);
-							new_canvas.deselect_all();
-							new_canvas.activ_cells[selection_position.y + 1][0] = true;
+							working_canvas.set_char_selected(value_to_add);
+							working_canvas.deselect_all();
+							working_canvas.activ_cells[selection_position.y + 1][0] = true;
 						}
 					}
 					else
 					{
-						if (selection_position.x+1 < new_canvas.size_x)
+						if (selection_position.x+1 < working_canvas.size_x)
 						{
 							value_to_add = event.text.unicode;
-							new_canvas.set_char_selected(value_to_add);
-							new_canvas.deselect_all();
-							new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+							working_canvas.set_char_selected(value_to_add);
+							working_canvas.deselect_all();
+							working_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
 						}
 						else
 						{
 							value_to_add = event.text.unicode;
-							new_canvas.set_char_selected(value_to_add);
+							working_canvas.set_char_selected(value_to_add);
 						}
 					}
 				}
@@ -1073,112 +1075,179 @@ void loop_arrow_movement_management() {
 	//this parts adds usability to the keys in order to move the cursor if it's just one selected
 	if (event.type == sf::Event::KeyPressed && !prev_any_key_is_pressed)
 	{
-		if (new_canvas.return_ammount_selected() == 1)
+		if (working_canvas.return_ammount_selected() == 1)
 		{
-			selection_position = new_canvas.first_position_selection();
+			selection_position = working_canvas.first_position_selection();
 
 			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Left ))
 			{
 				if (selection_position.x > 0)
 				{
-					new_canvas.deselect_all();
-					new_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
+					working_canvas.deselect_all();
+					working_canvas.activ_cells[selection_position.y][selection_position.x - 1] = true;
 				}
 			}
 			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Right ))
 			{
-				if (selection_position.x < new_canvas.size_x - 1)
+				if (selection_position.x < working_canvas.size_x - 1)
 				{
-					new_canvas.deselect_all();
-					new_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
+					working_canvas.deselect_all();
+					working_canvas.activ_cells[selection_position.y][selection_position.x + 1] = true;
 				}
 			}
 			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Up ))
 			{
 				if (selection_position.y > 0)
 				{
-					new_canvas.deselect_all();
-					new_canvas.activ_cells[selection_position.y - 1][selection_position.x] = true;
+					working_canvas.deselect_all();
+					working_canvas.activ_cells[selection_position.y - 1][selection_position.x] = true;
 				}
 			}
 			if (sf::Keyboard::isKeyPressed( sf::Keyboard::Down ))
 			{
-				if (selection_position.y < new_canvas.size_y - 1)
+				if (selection_position.y < working_canvas.size_y - 1)
 				{
-					new_canvas.deselect_all();
-					new_canvas.activ_cells[selection_position.y + 1][selection_position.x] = true;
+					working_canvas.deselect_all();
+					working_canvas.activ_cells[selection_position.y + 1][selection_position.x] = true;
 				}
 			}
 		}
 	}
 }
 
+void loop_start() {
+	//currently zoom is disabled with this option from here
+	//view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+	hud_view.setSize(  sf::Vector2f(window.getSize().x, window.getSize().y));
+	hud_view.setCenter(window.getSize().x/2, window.getSize().y/2);
+
+	upper_toolbar.pos = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02);
+	main_toolbar.pos  = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15);
+	upper_toolbar.update();
+	main_toolbar.update();
+
+	//input management (part 1)
+	window.setView(canvas_view);
+	mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	window.setView(hud_view);
+	hud_mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+	out_of_canvas  = !inside_rect((sf::Vector2i)mouse_position, displacement_x, displacement_y, working_canvas.size_x*cell_size_x, working_canvas.size_y*cell_size_y);
+	//displacement_v should be a 2d vector in first place
+	displacement_v = sf::Vector2i(displacement_x, displacement_y);
+	cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, working_canvas, cell_size_x, cell_size_y);
+
+
+	left_mouse_button_is_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+	left_mouse_button_just_down = false;
+	if (left_mouse_button_is_down && !prev_left_mouse_button_is_down) {
+		left_mouse_button_just_down = true; //std::cout << "left m";
+	}
+	left_mouse_button_just_up = false;
+	if (!left_mouse_button_is_down && prev_left_mouse_button_is_down) {
+		left_mouse_button_just_up = true; //std::cout << "up";
+	}
+}
+
+void loop_canvas_button() {
+	//std::cout << "1\n";
+	canvas_button_pos_x = displacement_x + working_canvas.size_x * cell_size_x + 6;
+	canvas_button_pos_y = displacement_y + working_canvas.size_y * cell_size_y + 6;
+
+	//we move the corner button
+	if (moving_canvas_button)
+	{
+		canvas_button_pos_x       += ( - prev_mouse_position + mouse_position).x;
+		canvas_button_image.pos.x += ( - prev_mouse_position + mouse_position).x;
+		canvas_button_pos_y       += ( - prev_mouse_position + mouse_position).y;
+		canvas_button_image.pos.y += ( - prev_mouse_position + mouse_position).y;
+
+		canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
+
+		increment_decrement_vector =                               cell_location((sf::Vector2i)mouse_position         - displacement_v , working_canvas, cell_size_x, cell_size_y);
+		increment_decrement_vector = increment_decrement_vector - (cell_location((sf::Vector2i)initial_mouse_position - displacement_v , working_canvas, cell_size_x, cell_size_y));
+	}
+	else
+	{
+		canvas_button_image.pos.x = canvas_button_pos_x;
+		canvas_button_image.pos.y = canvas_button_pos_y;
+		canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
+	}
+}
+
+void loop_end() {
+	//prev variables
+	prev_moving_selection_around   = moving_selection_around;
+	prev_mouse_position            = mouse_position;
+	prev_left_mouse_button_is_down = left_mouse_button_is_down;
+	prev_any_key_pressed           = (event.type == sf::Event::TextEntered);
+	prev_any_key_is_pressed        = (event.type == sf::Event::KeyPressed);
+}
+
+void loop_move_selection() {
+	//system to pan the canvas around the view OR move a selection around
+	moving_selection_around = false;
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+		{
+			moving_selection_around = true;
+		}
+		else
+		{
+			displacement_x += mouse_position.x - prev_mouse_position.x;
+			displacement_y += mouse_position.y - prev_mouse_position.y;
+		}
+	}
+
+	// in case we just started dragging out selection
+	if (moving_selection_around && !prev_moving_selection_around)
+	{
+		drag_and_drop_starting_point          = (sf::Vector2i)mouse_position;
+		working_canvas.drag_drop_activ_cells  = working_canvas.activ_cells;
+		working_canvas.drag_drop_cell_letters = working_canvas.cell_letters;
+	}
+	// if we are finished
+	else if (!moving_selection_around && prev_moving_selection_around)
+	{
+		working_canvas.set_char_selected(' ');
+		working_canvas.deselect_all();
+
+		working_canvas.overlay_drag_and_drop(
+
+		working_canvas.drag_drop_activ_cells,
+		working_canvas.drag_drop_cell_letters,
+		(
+			cell_location(
+			((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point),
+			working_canvas, cell_size_x, cell_size_y)
+		)
+
+		);
+	}
+}
+
+void loop_right_click_deselect() {
+	//used to clear the selection
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+	{
+		//this deletes stuff
+		working_canvas.deselect_all();
+	}
+}
+
 int main()
 {
-	loop_start();
+	loop_awake();
 
-    //the main loop of the display system. Yet more optimization is needed with the cpu usage...
 	sf::Clock clock;while (window.isOpen())
 	{
 
 		clock.restart();
 
-		//currently zoom is disabled with this option from here
-		//view1.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
-		hud_view.setSize(  sf::Vector2f(window.getSize().x, window.getSize().y));
-		hud_view.setCenter(window.getSize().x/2, window.getSize().y/2);
+		loop_start();
 
-		upper_toolbar.pos = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y * 0.02);
-		main_toolbar.pos  = sf::Vector2i((int)window.getSize().x / 2, (int)window.getSize().y - (int)window.getSize().y * 0.15);
-		upper_toolbar.update();
-		main_toolbar.update();
-
-		//input management (part 1)
-		window.setView(canvas_view);
-		mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-		window.setView(hud_view);
-		hud_mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-		out_of_canvas  = !inside_rect((sf::Vector2i)mouse_position, displacement_x, displacement_y, new_canvas.size_x*cell_size_x, new_canvas.size_y*cell_size_y);
-		//displacement_v should be a 2d vector in first place
-		displacement_v = sf::Vector2i(displacement_x, displacement_y);
-		cell_location_vector = cell_location((sf::Vector2i)mouse_position - displacement_v, new_canvas, cell_size_x, cell_size_y);
-		left_mouse_button_is_down = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-		left_mouse_button_just_down = false;
-		if (left_mouse_button_is_down && !prev_left_mouse_button_is_down) {
-			left_mouse_button_just_down = true; //std::cout << "left m";
-		}
-		left_mouse_button_just_up = false;
-		if (!left_mouse_button_is_down && prev_left_mouse_button_is_down) {
-			left_mouse_button_just_up = true; //std::cout << "up";
-		}
-
-		//std::cout << "1\n";
-		canvas_button_pos_x = displacement_x + new_canvas.size_x * cell_size_x + 6;
-		canvas_button_pos_y = displacement_y + new_canvas.size_y * cell_size_y + 6;
-
-		//we move the corner button
-		if (moving_canvas_button)
-		{
-			canvas_button_pos_x       += ( - prev_mouse_position + mouse_position).x;
-			canvas_button_image.pos.x += ( - prev_mouse_position + mouse_position).x;
-			canvas_button_pos_y       += ( - prev_mouse_position + mouse_position).y;
-			canvas_button_image.pos.y += ( - prev_mouse_position + mouse_position).y;
-
-			canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
-
-			increment_decrement_vector =                               cell_location((sf::Vector2i)mouse_position         - displacement_v , new_canvas, cell_size_x, cell_size_y);
-			increment_decrement_vector = increment_decrement_vector - (cell_location((sf::Vector2i)initial_mouse_position - displacement_v , new_canvas, cell_size_x, cell_size_y));
-		}
-		else
-		{
-			canvas_button_image.pos.x = canvas_button_pos_x;
-			canvas_button_image.pos.y = canvas_button_pos_y;
-			canvas_button_image.spr.setPosition(canvas_button_image.pos.x, canvas_button_image.pos.y);
-		}
-
-		//std::cout << "2\n";
-		//events happen here in part
+		loop_canvas_button();
 
 		while (window.pollEvent(event))
 		{
@@ -1205,133 +1274,22 @@ int main()
 
 		loop_arrow_movement_management();
 
-		//system to pan the canvas around the view OR move a selection around
-		moving_selection_around = false;
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-			{
-				moving_selection_around = true;
-			}
-			else
-			{
-				displacement_x += mouse_position.x - prev_mouse_position.x;
-				displacement_y += mouse_position.y - prev_mouse_position.y;
-			}
-		}
-		//used to clear the selection
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-		{
-			//this deletes stuff
-			new_canvas.deselect_all();
-		}
+		loop_move_selection();
 
-		//we take care of the selection thing
-		if (moving_selection_around && !prev_moving_selection_around)
-		{
-			//D: :DD  :D:D D: D: DDDD: ::DDD:D::D::D:
-			std::cout << "started =^3^=\n";
-			drag_and_drop_starting_point = (sf::Vector2i)mouse_position;
-			new_canvas.drag_drop_activ_cells = new_canvas.activ_cells;
-			new_canvas.drag_drop_cell_letters = new_canvas.cell_letters;
-		}
-		else if (moving_selection_around && prev_moving_selection_around)
-		{
-			//doing thiiiiiiiiiiz 7u7 heheheheh
-		}
-		else if (!moving_selection_around && prev_moving_selection_around)
-		{
-			//.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
-			std::cout << "finihed ? :$\n";
+		loop_right_click_deselect();
 
-			new_canvas.set_char_selected(' ');
-			new_canvas.deselect_all();
+		loop_render();
 
-			new_canvas.overlay_drag_and_drop(
-
-			new_canvas.drag_drop_activ_cells,
-			new_canvas.drag_drop_cell_letters,
-			(
-				cell_location(
-				((sf::Vector2i)mouse_position - (sf::Vector2i)drag_and_drop_starting_point),
-				new_canvas, cell_size_x, cell_size_y)
-			)
-
-			);
-		}
-
-
-		//std::cout << "7\n";
-		//the drawing part of the loop, currently everything is drawn in the 'windows' object
-		window.clear();
-
-
-
-			loop_render();
-
-			// button_new_tab_pos_x = 10;
-			// button_new_tab_pos_y = 0;
-			// button_new_tab_pos_x  = upper_toolbar.pos.x + (upper_toolbar.wh.x / 2) + upper_toolbar.padding + 8;
-			// button_new_tab.pos = sf::Vector2i(button_new_tab_pos_x, button_new_tab_pos_y);
-			// button_new_tab.update();
-			// window.draw(button_new_tab.spr);
-
-			// button_close_tab_pos_y = 40;
-			// button_close_tab_pos_x = upper_toolbar.pos.x - (upper_toolbar.wh.x / 2) - upper_toolbar.padding - 8 - button_close_tab.wh.x;
-			// button_close_tab.pos = sf::Vector2i(button_close_tab_pos_x, button_close_tab_pos_y);
-			// button_close_tab.update();
-			// window.draw(button_close_tab.spr);
-
-
-
-
-			// X::loop_render();
-
-			//std::cout << "7.7\n";
-			if (!out_of_canvas)
-			{
-				string_cell_upper_toolbox = "";
-				string_cell_upper_toolbox += "<";
-				string_cell_upper_toolbox += patch::to_string(cell_location_vector.x);
-				string_cell_upper_toolbox += " ";
-				string_cell_upper_toolbox += patch::to_string(cell_location_vector.y);
-				string_cell_upper_toolbox += ">";
-			}
-			else
-			{
-				string_cell_upper_toolbox = "< >";
-			}
-			//std::cout << "7.8\n";
-			draw_text_over_toobox_up(window, string_cell_upper_toolbox, text_pixel, font_pixel);
-			//std::cout << "7.9\n";
-			if (main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "" && main_toolbar.check_click((sf::Vector2i)hud_mouse_position) != "clicked the toolbar...")
-			{
-				std::string texti_pixel;
-				texti_pixel = main_toolbar.check_click((sf::Vector2i)hud_mouse_position);
-				draw_text_over_toobox_bottom(window, texti_pixel, text_pixel, font_pixel);
-			}
-
-		//std::cout << "8\n";
-
-		//window.setView(view1);
-		window.display();
-
-		//prev variables
-		prev_moving_selection_around   = moving_selection_around;
-		prev_mouse_position            = mouse_position;
-		prev_left_mouse_button_is_down = left_mouse_button_is_down;
-		prev_any_key_pressed           = (event.type == sf::Event::TextEntered);
-		prev_any_key_is_pressed        = (event.type == sf::Event::KeyPressed);
+		loop_end();
 
 		//adjusting the timing in the loop
-		sf::Time elapsed = clock.getElapsedTime();
+		elapsed = clock.getElapsedTime();
 		float sleepTime = 1.f / 60.f - elapsed.asSeconds();
 		if(sleepTime > 0.f)
 		{
-		    sf::sleep(sf::seconds(sleepTime));
+			sf::sleep(sf::seconds(sleepTime));
 		}
 
-		//std::cout << "9\n";
 	}
 	return 0;
 }
